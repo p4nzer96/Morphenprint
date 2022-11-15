@@ -6,3 +6,13 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+#Ignore files
+/Master_Thesis_Fingerprint_Morphing.iml
+/misc.xml
+/modules.xml
+/vcs.xml
+/vcs.xml
+
+#Ignore folders
+/inspectionProfiles/
