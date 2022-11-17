@@ -20,7 +20,6 @@ def get_verifinger_minutiae(img_path):
         'image': img_base64
     }
     data = json.dumps(data)
-    print(data)
 
     # send the request
     url = "http://141.44.30.186:5001/api/verifinger/minutiae"
@@ -29,6 +28,7 @@ def get_verifinger_minutiae(img_path):
     try:
         # get the response
         r = requests.post(url, data=json.dumps(data), headers=headers)
+        print(r)
 
         # parse the response
         result = r.json()
