@@ -26,7 +26,7 @@ class Resize:
 
 # Getting command-line arguments
 input_directory_arg = sys.argv[1]
-output_directory_arg = sys.argv[2]      
+output_directory_arg = sys.argv[2]
 
 # Creating an instance of the Resize class
 resize = Resize(input_directory_arg, output_directory_arg)
