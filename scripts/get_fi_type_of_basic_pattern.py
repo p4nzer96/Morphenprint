@@ -23,7 +23,7 @@ class BasicPatternType:
                 if file.endswith(".png"):
                     file_path = self.input_directory + '/' + file
                     img = cv2.imread(file_path, 0)
-                    angles_img = orientation.calculate_angles(img, self.block_size, smoth=True)
+                    angles_img, _ = orientation.calculate_angles(img, self.block_size, smoth=True)
                     _, _, mask = segmentation.create_segmented_and_variance_images(img, self.block_size, 0.2)
                     singularities = Singularities(img, angles_img, 1, self.block_size, mask)
                     _, _, loop_list, delta_list, whorl_list = singularities.calculate_singularities()

@@ -14,6 +14,9 @@ def calculate_angles(im, W, smoth=False):
     j1 = lambda x, y: 2 * x * y
     j2 = lambda x, y: x ** 2 - y ** 2
     j3 = lambda x, y: x ** 2 + y ** 2
+    j4 = lambda x, y: x * y
+    j5 = lambda x: x ** 2
+    j6 = lambda y: y ** 2
 
     (y, x) = im.shape
 
@@ -22,6 +25,7 @@ def calculate_angles(im, W, smoth=False):
     xSobel = np.transpose(ySobel).astype(np.int64)
 
     result = [[] for i in range(1, y, W)]
+    rel_result = [[] for i in range(1, y, W)]
 
     Gx_ = cv.filter2D(im/125,-1, ySobel)*125
     Gy_ = cv.filter2D(im/125,-1, xSobel)*125
@@ -36,26 +40,34 @@ def calculate_angles(im, W, smoth=False):
                     Gy = round(Gy_[l, k])  # vertial gradients at l, k
                     nominator += j1(Gx, Gy)
                     denominator += j2(Gx, Gy)
+                    rel_nom_1 += denominator
+                    rel_nom_2 += j4(Gx, Gy)
+                    rel_den_1 += j5(Gx)
+                    rel_den_2 += j6(Gy)
 
             # nominator = round(np.sum(Gy_[j:min(j + W, y - 1), i:min(i + W , x - 1)]))
             # denominator = round(np.sum(Gx_[j:min(j + W, y - 1), i:min(i + W , x - 1)]))
             if nominator or denominator:
                 angle = (math.pi + math.atan2(nominator, denominator)) / 2
+                reliability = (np.sqrt((rel_nom_1)**2 + 4 * ((rel_nom_2)**2))) / (rel_den_1 + rel_den_2)
                 orientation = np.pi/2 + math.atan2(nominator,denominator)/2
                 result[int((j-1) // W)].append(angle)
+                rel_result[int((j-1) // W)].append(reliability)
             else:
                 result[int((j-1) // W)].append(0)
+                rel_result[int((j-1) // W)].append(0)
 
             # segment image
             # focus_img = im[j:min(j + W, y - 1), i:min(i + W , x - 1)]
             # segmentator = -1 if segmentator/W*W < np.max(focus_img)*
 
     result = np.array(result)
+    rel_result = np.array(rel_result)
 
     if smoth:
         result = smooth_angles(result)
 
-    return result
+    return result, rel_result
 
 
 def gauss(x, y):
