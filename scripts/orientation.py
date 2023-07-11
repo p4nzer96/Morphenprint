@@ -24,7 +24,7 @@ def calculate_angles(im, W, smoth=False):
     ySobel = np.array(sobelOperator).astype(np.int64)
     xSobel = np.transpose(ySobel).astype(np.int64)
 
-    result = [[] for i in range(1, y, W)]
+    ang_result = [[] for i in range(1, y, W)]
     rel_result = [[] for i in range(1, y, W)]
 
     Gx_ = cv.filter2D(im/125,-1, ySobel)*125
@@ -34,6 +34,10 @@ def calculate_angles(im, W, smoth=False):
         for i in range(1, x, W):
             nominator = 0
             denominator = 0
+            rel_nom_1 = 0
+            rel_nom_2 = 0
+            rel_den_1 = 0
+            rel_den_2 = 0
             for l in range(j, min(j + W, y - 1)):
                 for k in range(i, min(i + W , x - 1)):
                     Gx = round(Gx_[l, k])  # horizontal gradients at l, k
@@ -45,29 +49,37 @@ def calculate_angles(im, W, smoth=False):
                     rel_den_1 += j5(Gx)
                     rel_den_2 += j6(Gy)
 
+            rel_nom_1 = np.array(rel_nom_1).astype(np.float64)
+            rel_nom_2 = np.array(rel_nom_2).astype(np.float64)
+            rel_den_1 = np.array(rel_den_1).astype(np.float64)
+            rel_den_2 = np.array(rel_den_2).astype(np.float64)
             # nominator = round(np.sum(Gy_[j:min(j + W, y - 1), i:min(i + W , x - 1)]))
             # denominator = round(np.sum(Gx_[j:min(j + W, y - 1), i:min(i + W , x - 1)]))
             if nominator or denominator:
                 angle = (math.pi + math.atan2(nominator, denominator)) / 2
-                reliability = (np.sqrt((rel_nom_1)**2 + 4 * ((rel_nom_2)**2))) / (rel_den_1 + rel_den_2)
+                reliability = (np.sqrt((rel_nom_1)**2 + 4 * ((rel_nom_2)**2))) / (rel_den_1 + rel_den_2 + 1e-12)
                 orientation = np.pi/2 + math.atan2(nominator,denominator)/2
-                result[int((j-1) // W)].append(angle)
+                ang_result[int((j-1) // W)].append(orientation)
                 rel_result[int((j-1) // W)].append(reliability)
             else:
-                result[int((j-1) // W)].append(0)
+                ang_result[int((j-1) // W)].append(0)
                 rel_result[int((j-1) // W)].append(0)
 
             # segment image
             # focus_img = im[j:min(j + W, y - 1), i:min(i + W , x - 1)]
             # segmentator = -1 if segmentator/W*W < np.max(focus_img)*
 
-    result = np.array(result)
+    ang_result = np.array(ang_result)
     rel_result = np.array(rel_result)
+    rel_result_max = np.max(rel_result)
+    rel_result_min = np.min(rel_result)
+    rel_result_norm = (rel_result - rel_result_min) / (rel_result_max - rel_result_min)
+    
 
     if smoth:
-        result = smooth_angles(result)
+        smooth_angles_result = smooth_angles(ang_result)
 
-    return result, rel_result
+    return smooth_angles_result, ang_result, rel_result_norm
 
 
 def gauss(x, y):
