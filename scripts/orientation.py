@@ -58,7 +58,7 @@ def calculate_angles(im, W, smoth=False):
             if nominator or denominator:
                 angle = (math.pi + math.atan2(nominator, denominator)) / 2
                 reliability = (np.sqrt((rel_nom_1)**2 + 4 * ((rel_nom_2)**2))) / (rel_den_1 + rel_den_2 + 1e-12)
-                orientation = np.pi/2 + math.atan2(nominator,denominator)/2
+                orientation = math.pi/2 + math.atan2(nominator, denominator) / 2
                 ang_result[int((j-1) // W)].append(orientation)
                 rel_result[int((j-1) // W)].append(reliability)
             else:
