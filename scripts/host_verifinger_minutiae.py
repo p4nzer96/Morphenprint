@@ -3,7 +3,7 @@ import sys
 import base64
 import json
 import requests
-from subprocess32 import check_output
+from subprocess import check_output
 
 
 def get_verifinger_minutiae(img_path):
