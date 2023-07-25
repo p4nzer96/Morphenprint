@@ -88,11 +88,10 @@ def main():
                     
                     loop_difference_x = loop_list_img1[0][0][1] - loop_list_img2[0][0][1]
 
-                    if (image_type == 'whorl'):
-                        if (np.abs(loop_difference_x) > 100):
-                            img1, img2 = get_updated_imgs(img1, img2, loop_difference_x)
-                            loop_list_img1, angles_img1, rel_img1 = fi_alignment_config.get_loop_list_angles_rel_img(img1, block_size)
-                            loop_list_img2, angles_img2, rel_img2 = fi_alignment_config.get_loop_list_angles_rel_img(img2, block_size)
+                    if (np.abs(loop_difference_x) > 100):
+                        img1, img2 = get_updated_imgs(img1, img2, loop_difference_x)
+                        loop_list_img1, angles_img1, rel_img1 = fi_alignment_config.get_loop_list_angles_rel_img(img1, block_size)
+                        loop_list_img2, angles_img2, rel_img2 = fi_alignment_config.get_loop_list_angles_rel_img(img2, block_size)
                     
                     # translate values
                     tx = loop_list_img1[0][0][1] - loop_list_img2[0][0][1]
@@ -112,19 +111,19 @@ def main():
 
                 # Get similarity score dataframe
                 if image_type == 'loop':
-                    translated_img2, similarity_score_df = a_loop.get_loop_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx, ty)
+                    transformed_img2, similarity_score_df = a_loop.get_loop_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx, ty, loop_list_img1)
 
                 if image_type == 'whorl':
-                    translated_img2, similarity_score_df = a_whorl.get_whorl_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx, ty, loop_list_img1)
+                    transformed_img2, similarity_score_df = a_whorl.get_whorl_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx, ty, loop_list_img1)
 
                 if image_type == 'arch':
-                    translated_img2, similarity_score_df = a_arch.get_arch_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx, ty)
+                    transformed_img2, similarity_score_df = a_arch.get_arch_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx, ty)
 
                 # Find out the highest similarity score
                 max_sim_score = similarity_score_df[similarity_score_df['similarity_score'] == similarity_score_df['similarity_score'].max()]
                 
-                # Apply the translation and rotation values on the translated image2
-                img2_t = translation.translate_image(translated_img2, int(max_sim_score['tx']), int(max_sim_score['ty']))
+                # Apply the translation and rotation values on the transformed image2
+                img2_t = translation.translate_image(transformed_img2, int(max_sim_score['tx']), int(max_sim_score['ty']))
                 img2_t_r = rotation.rotate_image(img2_t, int(max_sim_score['rotation_angle']), (img2_w_center, img2_h_center))
                 
                 # Find core points of the new image and write core points of both image1 and image2 to a text file

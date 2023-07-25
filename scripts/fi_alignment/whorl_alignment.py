@@ -1,13 +1,12 @@
 import cv2
 import numpy as np
 import fi_orientation
-import fi_singularity
 import similarity
 import translation
 import rotation
 import pandas as pd
-import fi_segmentation
 import fi_alignment_config
+import traceback
 
 
 def get_good_rotation_translation_config(img_t, loop_difference_x, block_size, img2_w_center, img2_h_center, loop_list_img1, angles_img1, rel_img1):
@@ -44,19 +43,24 @@ def get_best_whorl_fi_alignment_config(img2, block_size, angles_img1, rel_img1, 
   return sim_score_whorl_df
 
 def get_whorl_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx_whorl, ty_whorl, loop_list_img1):
-    img2_h_center, img2_w_center = img2.shape[1]/2, img2.shape[0]/2
-    sim_score_whorl_df = pd.DataFrame()
-    sim_score_whorl_df_final = pd.DataFrame()
-    img2_t = translation.translate_image(img2, tx_whorl, ty_whorl)
-    img2_t_loop_list, _, _ = fi_alignment_config.get_loop_list_angles_rel_img(img2_t, block_size)
-    loop_difference_x = loop_list_img1[2][0][1] - img2_t_loop_list[2][0][1]
+    try:
+        img2_h_center, img2_w_center = img2.shape[1]/2, img2.shape[0]/2
+        sim_score_whorl_df = pd.DataFrame()
+        sim_score_whorl_df_final = pd.DataFrame()
+        img2_t = translation.translate_image(img2, tx_whorl, ty_whorl)
+        img2_t_loop_list, _, _ = fi_alignment_config.get_loop_list_angles_rel_img(img2_t, block_size)
+        loop_difference_x = loop_list_img1[2][0][1] - img2_t_loop_list[2][0][1]
 
-    sim_score_whorl_df = get_good_rotation_translation_config(img2_t, loop_difference_x, block_size, img2_w_center, img2_h_center, loop_list_img1, angles_img1, rel_img1)
-    max_whorl_sim_score = sim_score_whorl_df[sim_score_whorl_df['similarity_score']==sim_score_whorl_df['similarity_score'].max()]
+        sim_score_whorl_df = get_good_rotation_translation_config(img2_t, loop_difference_x, block_size, img2_w_center, img2_h_center, loop_list_img1, angles_img1, rel_img1)
+        max_whorl_sim_score = sim_score_whorl_df[sim_score_whorl_df['similarity_score']==sim_score_whorl_df['similarity_score'].max()]
 
-    img2_t_r = rotation.rotate_image(img2_t, int(max_whorl_sim_score['rotation_angle']), (img2_w_center, img2_h_center))
-    img2_t_r_t = translation.translate_image(img2_t_r, int(max_whorl_sim_score['tx']), int(max_whorl_sim_score['ty']))
+        img2_t_r = rotation.rotate_image(img2_t, int(max_whorl_sim_score['rotation_angle']), (img2_w_center, img2_h_center))
+        img2_t_r_t = translation.translate_image(img2_t_r, int(max_whorl_sim_score['tx']), int(max_whorl_sim_score['ty']))
 
-    sim_score_whorl_df_final = get_best_whorl_fi_alignment_config(img2_t_r_t, block_size, angles_img1, rel_img1, img2_w_center, img2_h_center, sim_score_whorl_df_final)
+        sim_score_whorl_df_final = get_best_whorl_fi_alignment_config(img2_t_r_t, block_size, angles_img1, rel_img1, img2_w_center, img2_h_center, sim_score_whorl_df_final)
+
+    except Exception as e:
+        print('Error in whorl alignment -' + str(e))
+        traceback.print_exc()
 
     return img2_t_r_t, sim_score_whorl_df_final
