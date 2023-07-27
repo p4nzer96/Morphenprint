@@ -15,7 +15,7 @@ def split_list_into_halves(input_list):
     second_half = input_list[middle + len(input_list) % 2:]
     return first_half, second_half
 
-def get_first_second_part_of_loop_list(loop_list):
+def get_first_second_part_of_loop_list(loop_list, block_size):
     loop_fh = []
     loop_sh = []
     try:
@@ -32,9 +32,9 @@ def get_first_second_part_of_loop_list(loop_list):
                 loop_fh.append(loop_list_fh)
                 loop_sh.append(loop_list_sh)
             else:
-                if (np.abs(loop_list[0][0][0] - loop_list[1][0][0]) == 16):
+                if (np.abs(loop_list[0][0][0] - loop_list[1][0][0]) == block_size):
                     loop_fh.append(loop_list[1])
-                elif (np.abs(loop_list[1][0][0] - loop_list[2][0][0]) == 16):
+                elif (np.abs(loop_list[1][0][0] - loop_list[2][0][0]) == block_size):
                     loop_sh.append(loop_list[1])
             
             if len(loop_list[2]) > 2:
@@ -98,7 +98,7 @@ def get_good_rotation_translation_config(img_t, loop_difference_x, block_size, i
 
     return sim_score_whorl_df
 
-def get_best_whorl_fi_alignment_config(img2, block_size, angles_img1, rel_img1, img2_w_center, img2_h_center):
+def get_best_whorl_fi_alignment_config(img2, block_size, img2_w_center, img2_h_center, angles_img1, rel_img1):
     sim_score_whorl_df_final = pd.DataFrame()
     for value in np.arange(-5, 6, 1):
         img2_t = translation.translate_image(img2, value, value)
@@ -126,13 +126,13 @@ def get_whorl_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx_whorl,
            loop_difference_x = loop_list_img1[2][0][1] - img2_t_loop_list[2][0][1]
         else:
             if len(loop_list_img1) < 4:
-                l1_fh, l1_sh = get_first_second_part_of_loop_list(loop_list_img1)
+                l1_fh, l1_sh = get_first_second_part_of_loop_list(loop_list_img1, block_size)
                 l1_value = l1_sh[0][0][1]
             else:
                 l1_value = loop_list_img1[2][0][1]
             
             if len(img2_t_loop_list) < 4:
-                l2_fh, l2_sh = get_first_second_part_of_loop_list(img2_t_loop_list)
+                l2_fh, l2_sh = get_first_second_part_of_loop_list(img2_t_loop_list, block_size)
                 l2_value = l2_sh[0][0][1]
             else:
                 l2_value = img2_t_loop_list[2][0][1]
@@ -140,12 +140,12 @@ def get_whorl_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx_whorl,
             loop_difference_x = l1_value - l2_value
 
         sim_score_whorl_df = get_good_rotation_translation_config(img2_t, loop_difference_x, block_size, img2_w_center, img2_h_center, angles_img1, rel_img1, loop_list_img1)
-        max_whorl_sim_score = sim_score_whorl_df[sim_score_whorl_df['similarity_score']==sim_score_whorl_df['similarity_score'].max()]
+        max_whorl_sim_score = sim_score_whorl_df[sim_score_whorl_df['similarity_score'] == sim_score_whorl_df['similarity_score'].max()]
 
         img2_t_r = rotation.rotate_image(img2_t, int(max_whorl_sim_score['rotation_angle']), (img2_w_center, img2_h_center))
         img2_t_r_t = translation.translate_image(img2_t_r, int(max_whorl_sim_score['tx']), int(max_whorl_sim_score['ty']))
 
-        sim_score_whorl_df_final = get_best_whorl_fi_alignment_config(img2_t_r_t, block_size, angles_img1, rel_img1, img2_w_center, img2_h_center)
+        sim_score_whorl_df_final = get_best_whorl_fi_alignment_config(img2_t_r_t, block_size, img2_w_center, img2_h_center, angles_img1, rel_img1)
 
     except Exception as e:
         print('Error in whorl alignment -' + str(e))

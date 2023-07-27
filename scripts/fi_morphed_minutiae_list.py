@@ -5,8 +5,6 @@ import sys
 import os
 import traceback
 import fi_orientation
-import fi_segmentation
-import fi_singularity
 import translation
 import rotation
 import subprocess
