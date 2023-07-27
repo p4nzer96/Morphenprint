@@ -55,6 +55,7 @@ def get_overlapped_image(image1, image2):
 
 
 def main():
+    # parse command line parameters
     directory_path = sys.argv[1]
     image_type = sys.argv[2]
     block_size = 16
@@ -144,14 +145,17 @@ def main():
                 # Save cropped image1 and image2 and increase its resolution to 500ppi
                 img1_transformed_cropped = get_overlapped_image(img2_t_r, img1)
                 img2_transformed_cropped = get_overlapped_image(img1, img2_t_r)
-                cv2.imwrite(root + '/' + str(os.path.basename(img1_path)) + '_cropped.png', img1_transformed_cropped)
-                cv2.imwrite(root + '/' + str(os.path.basename(img2_path)) + '_cropped.png', img2_transformed_cropped)
+                cv2.imwrite(root + '/' + str(os.path.splitext(os.path.basename(img1_path))[0]) + '_cropped.png', img1_transformed_cropped)
+                cv2.imwrite(root + '/' + str(os.path.splitext(os.path.basename(img2_path))[0]) + '_cropped.png', img2_transformed_cropped)
 
-                img1_save_path = root + '/' + str(os.path.basename(img1_path)) + '_cropped.png'
-                img2_save_path = root + '/' + str(os.path.basename(img2_path)) + '_cropped.png'
+                img1_save_path = root + '/' + str(os.path.splitext(os.path.basename(img1_path))[0]) + '_cropped.png'
+                img2_save_path = root + '/' + str(os.path.splitext(os.path.basename(img2_path))[0]) + '_cropped.png'
 
                 subprocess.call(["C:/Program Files/ImageMagick-7.1.1-Q16-HDRI/magick.exe", "convert", img1_save_path, "-units", "PixelsPerInch", "-density", "500", img1_save_path], shell=True)
                 subprocess.call(["C:/Program Files/ImageMagick-7.1.1-Q16-HDRI/magick.exe", "convert", img2_save_path, "-units", "PixelsPerInch", "-density", "500",  img2_save_path], shell=True)
+
+                # subprocess.call(["convert", img1_save_path, "-units", "PixelsPerInch", "-density", "500", img1_save_path])
+                # subprocess.call(["convert", img2_save_path, "-units", "PixelsPerInch", "-density", "500", img2_save_path])
 
             # print("Folder:", os.path.basename(root))
             folder_count = folder_count + 1
