@@ -1,7 +1,3 @@
-# Last change: 2022-06-01
-#
-#!/usr/bin/python
-
 import sys
 import subprocess
 import numpy as np 
@@ -9,6 +5,7 @@ import os
 from PIL import Image, ImageDraw, ImageChops
 import math
 import tempfile
+import traceback
 
 
 def create_Patches(minutiae_list, bw_image, patch_size, min_reliability): 
@@ -161,116 +158,104 @@ def create_monoSquare(minutiae_list, im_size, square_size, min_reliability):
     return minutiae_map    
 
 
-def create_minutiaeMap(minutiae_txt_dir, minutiae_map_dir, scale = 1, method = 'pointingMinutiae', size = (512,512)):
+def create_minutiaeMap(morphed_minutiae_path, minutiae_map_dir, minutiae_map_save_name, scale = 1, method = 'pointingMinutiae', size = (512,512)):
     """Create minutia map from a list of minitiae by depicting minutiae as black squares on a white background. 
     There is no destinction between ridge line endings and bifurcations. 
 
-    param: minutiae_txt_dir: directory of minutiae txt files
+    param: morphed_minutiae_path: directory of morphed minutiae txt file
     param: minutiae_map_dir: directory of minutiae map files
     param: scale: scale of minutiae map
     param: method: method of creating minutiae map
     param: size: size of minutiae map
+    param: minutiae_map_save_name: name of the minutiae map that will be saved
     return: None
     """
 
-    minutiae_files = os.listdir(minutiae_txt_dir)
+    with open(morphed_minutiae_path,"rt") as txtfile:
+        output = txtfile.read();
 
-    if not os.path.exists(minutiae_map_dir):
-        os.makedirs(minutiae_map_dir)
-
-    # process images in the input folder
-    num_files = len(minutiae_files)
-    for idx, minutiae_file in enumerate(minutiae_files):
-
-        print('['+str(idx+1)+'/'+ str(num_files)+']: ' + minutiae_file)
-
-        if os.path.exists(minutiae_map_dir+'/' + minutiae_file[::-1].split('.', 1)[1][::-1] + '.png'):
-            continue        
-
-        with open(minutiae_txt_dir+'/'+minutiae_file,"rt") as txtfile:
-            output = txtfile.read();
-
-        #print(output)
-        lines = output.split('\n')
-        minutiaelist=list()
-
-        for line in lines:
-
+    lines = output.split('\n')
+    minutiaelist = list()
+    
+    for line in lines:
+        try:
             if len(line) > 0 and line[0] == '{':
                 X = float(line[line.find("X=") + len("X=") : line.find(", Y")])
                 Y = float(line[line.find("Y=") + len("Y=") : line.find(", T")])
                 Type = line[line.find("Type=") + len("Type=") : line.find(", A")]
-                Angle = float(line[line.find("Angle=") + len("Angle=") : line.find("Â°")])
+                Angle = float(line[line.find("Angle=") + len("Angle=") : line.find("\\xc2\\xb0")])
                 Quality = float(line[line.find("Quality=") + len("Quality=") : line.find("%,")])
                 minutiae = {'X': X*scale, 'Y': Y*scale, 'Type': Type, 'Angle': Angle, 'Quality': Quality }
                 minutiaelist.append(minutiae)
 
-        minutiae_quality_thr = 20.0
+        except Exception as e:
+            print('Error -' + str(e))
+            traceback.print_exc()
+            continue
+
+    minutiae_quality_thr = 20.0
             
-        if method == 'monoSquare':
-            minutiae_map = create_monoSquare(minutiaelist, size, int(12.0*scale+0.5), minutiae_quality_thr) 
+    if method == 'monoSquare':
+        minutiae_map = create_monoSquare(minutiaelist, size, int(12.0*scale+0.5), minutiae_quality_thr) 
 
-        elif method == 'graySquare':
-            minutiae_map = create_graySquare(minutiaelist, size, int(12.0*scale+0.5), minutiae_quality_thr)
+    elif method == 'graySquare':
+        minutiae_map = create_graySquare(minutiaelist, size, int(12.0*scale+0.5), minutiae_quality_thr)
 
-        elif method == 'pointingMinutiae':
-            minutiae_map = create_pointingMinutiae(minutiaelist, size, int(6.0*scale+0.5), int(14.0*scale+0.5), int(3.0*scale+0.5), minutiae_quality_thr)
+    elif method == 'pointingMinutiae':
+        minutiae_map = create_pointingMinutiae(minutiaelist, size, int(6.0*scale+0.5), int(14.0*scale+0.5), int(3.0*scale+0.5), minutiae_quality_thr)
         
-        elif method == 'directedMinutiae':
-            minutiae_map = create_directedMinutiae(minutiaelist, size, int(14.0*scale+0.5), int(3.0*scale+0.5), minutiae_quality_thr)
+    elif method == 'directedMinutiae':
+        minutiae_map = create_directedMinutiae(minutiaelist, size, int(14.0*scale+0.5), int(3.0*scale+0.5), minutiae_quality_thr)
 
-        else:
-            print("unknown method for minutiae representation")
-            sys.exit(-1) 
+    else:
+        print("unknown method for minutiae representation")
+        sys.exit(-1) 
   
-        minutiae_map = Image.fromarray(minutiae_map)
+    minutiae_map = Image.fromarray(minutiae_map)
 
-
-
-        # form image for pix2pix
-        double_image = Image.new("L", (size[0], size[1]))
-        double_image.paste(minutiae_map, (0, 0))        
-        double_image.save(minutiae_map_dir+'/' + minutiae_file[::-1].split('.', 1)[1][::-1] + '.png')
-
-
+    # form image for pix2pix
+    double_image = Image.new("L", (size[0], size[1]))
+    double_image.paste(minutiae_map, (0, 0))        
+    double_image.save(minutiae_map_dir + '/' + minutiae_map_save_name)
 
 
 def main():
-
-    if ( len(sys.argv) < 3 ):
-        print('Usage: python '+sys.argv[0]+ ' <minutiae_dir> <output_dir> [method] [downscale]>')
-        print('\minutiae_dir: this folder should include minutiae txt files')
-        print('\toutput_dir: created minutiae maps will be stored in this folder')
-        print('\tmethod: monoSquare | graySquare | pointingMinutiae | directedMinutiae | patchSkeleton (default=pointingMinutiae)')
-        print('\tdownscale: 2 for half size, 4 for quarter size and so on, float values are possible (default=1)')
-        sys.exit(0)
-
     # parse command line parameters
-
-    minutiae_dir = sys.argv[1]
-
-    output_dir = sys.argv[2]
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    if len(sys.argv) > 3:
-        method = sys.argv[3]
-        print(method)
-    else:
-        method = 'pointingMinutiae'
-
-    if len(sys.argv) > 4:
-        scale = 1.0 / float(sys.argv[4])
-    else:
-        scale = 1.0
-    
+    directory_path = sys.argv[1]
+    method = sys.argv[2]
+    scale = 1.0
     size = (512,512)
+    end_path_str = '_mmap.png'
+    try:
+        folder_count = 0
+        for root, _, files in os.walk(directory_path):
+            morphed_minutiae_path = ''
+            minutiae_map_save_name = ''
+            count = 0
+            for file in files:
+                # Check if the file is an image
+                if (file.lower().endswith('_mm.txt')):
+                    count = count + 1
+                    if (count == 1):
+                        morphed_minutiae_path = os.path.join(root, file)
+            
+            # create minutiae maps.
+            if (morphed_minutiae_path):
+                if method == 'pointingMinutiae':
+                    end_path_str = '_pm_mmap.png'
+                elif method == 'directedMinutiae':
+                    end_path_str = '_dm_mmap.png'
+                minutiae_map_save_name = str(os.path.splitext(os.path.basename(morphed_minutiae_path))[0]) + end_path_str
+                create_minutiaeMap(morphed_minutiae_path, root, minutiae_map_save_name, scale, method, size)
 
-    # create minutiae maps.
-    create_minutiaeMap(minutiae_dir, output_dir, scale, method, size)
-          
-   
-         
+            folder_count = folder_count + 1
+            print('Folder count - ' + str(folder_count))
+
+    except Exception as e:
+        print('Error -' + str(e))
+        traceback.print_exc()
+
+
 if __name__ == '__main__':
     main()
 
