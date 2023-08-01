@@ -162,7 +162,7 @@ def main():
             print('Folder count - ' + str(folder_count))
 
     except Exception as e:
-        print('Error -' + str(e))
+        print('Error -' + os.path.basename(img1_path) + ',' + os.path.basename(img2_path) + '-' + str(e))
         traceback.print_exc()
 
 

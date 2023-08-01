@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 import fi_orientation
 import similarity
@@ -58,7 +57,7 @@ def get_first_second_part_of_loop_list(loop_list, block_size):
                 loop_fh.append(loop_list_fh)
                 loop_sh.append(loop_list_sh)
             else:
-                loop_sh.append(loop_list[2])
+                loop_sh.append(loop_list[1])
 
     
         if (len(loop_list) == 1):

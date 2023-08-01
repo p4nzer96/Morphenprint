@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 import fi_orientation
 import similarity

@@ -49,9 +49,10 @@ def get_verifinger_minutiae(img_path, minutiae_save_path):
 
 def main():
     # parse command line parameters
-    directory_path = sys.argv[1]
-    for root, _, files in os.walk(directory_path):
-        try:   
+    directory_path = sys.argv[1]    
+    try:
+        folder_count = 0
+        for root, _, files in os.walk(directory_path): 
             img1_cropped_path = ''
             img2_cropped_path = ''
             img1_minutiae_save_path = ''
@@ -72,10 +73,13 @@ def main():
 
                 img2_minutiae_save_path = root + '/' + str(os.path.splitext(os.path.basename(img2_cropped_path))[0]) + '_minutiae.txt'
                 get_verifinger_minutiae(img2_cropped_path, img2_minutiae_save_path)
-        
-        except Exception as e:
-            print('Error -' + str(e))
-            traceback.print_exc()
+            
+            folder_count = folder_count + 1
+            print('Folder count - '+ str(folder_count))
+   
+    except Exception as e:
+        print('Error -'  + os.path.basename(img1_cropped_path) + ',' + os.path.basename(img2_cropped_path) + '-' +str(e))
+        traceback.print_exc()
 
 
 if __name__ == '__main__':
