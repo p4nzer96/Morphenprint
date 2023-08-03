@@ -223,6 +223,7 @@ def main():
     # parse command line parameters
     directory_path = sys.argv[1]
     method = sys.argv[2]
+    data_txt_path = sys.argv[3]
     scale = 1.0
     size = (512,512)
     end_path_str = '_mmap.png'
@@ -241,15 +242,19 @@ def main():
             
             # create minutiae maps.
             if (morphed_minutiae_path):
+
                 if method == 'pointingMinutiae':
                     end_path_str = '_pm_mmap.png'
                 elif method == 'directedMinutiae':
                     end_path_str = '_dm_mmap.png'
                 minutiae_map_save_name = str(os.path.splitext(os.path.basename(morphed_minutiae_path))[0]) + end_path_str
                 create_minutiaeMap(morphed_minutiae_path, root, minutiae_map_save_name, scale, method, size)
-
-            folder_count = folder_count + 1
-            print('Folder count - ' + str(folder_count))
+                folder_count = folder_count + 1
+                print('Folder count - ' + str(folder_count))
+            else:
+                with open(data_txt_path, 'a') as file:
+                    file.write('\n' + 'Image Sets - ' + str(os.path.basename(root)) + ',' + str(os.path.basename(img1_cropped_path)) + ',' + str(os.path.basename(img2_cropped_path)))
+                continue         
 
     except Exception as e:
         print('Error -' + str(e))

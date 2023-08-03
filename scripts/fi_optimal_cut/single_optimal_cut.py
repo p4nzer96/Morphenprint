@@ -106,6 +106,7 @@ def get_minutiae_df(img1_cropped, img2_cropped, img1_cropped_minutiae_path, img2
 def main():
     # parse command line parameters
     directory_path = sys.argv[1]
+    data_txt_path = sys.argv[2]
     folder_count = 0
     try:
         for root, _, files in os.walk(directory_path):
@@ -133,7 +134,13 @@ def main():
                     if (txt_count == 2):
                         img2_minutiae_path = os.path.join(root, file)
 
-            if (img1_cropped_path and img2_cropped_path and img1_minutiae_path and img2_minutiae_path):
+
+            if (img1_cropped_path and img2_cropped_path and img1_minutiae_path and img2_minutiae_path):           
+                if (os.path.getsize(img1_minutiae_path) == 0 or os.path.getsize(img2_minutiae_path) == 0):
+                    with open(data_txt_path, 'a') as file:
+                        file.write('\n' + 'Image Sets - ' + str(os.path.basename(root)) + ',' + str(os.path.basename(img1_cropped_path)) + ',' + str(os.path.basename(img2_cropped_path)))
+                    continue
+                    
                 img1_cropped = cv2.imread(img1_cropped_path, 0)
                 img2_cropped = cv2.imread(img2_cropped_path, 0)
 
@@ -198,7 +205,7 @@ def main():
             print('Folder count - ' + str(folder_count))
 
     except Exception as e:
-        print('Error -'+ os.path.basename(img1_cropped_path) + ',' + os.path.basename(img2_cropped_path) + '-' + str(e))
+        print('Error -'+ os.path.basename(root) + ',' + os.path.basename(img1_cropped_path) + ',' + os.path.basename(img2_cropped_path) + '-' + str(e))
         traceback.print_exc()
 
 
