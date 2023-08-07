@@ -20,6 +20,7 @@ def main():
         folder_count = 0
         for root, _, files in os.walk(input_directory_path):
             count = 0
+            morphed_minutiae_map_path = ''
             for file in files:
                 # Check if the file is an image
                 if (file.lower().endswith(end_path_str)):
@@ -28,7 +29,7 @@ def main():
                         morphed_minutiae_map_path = os.path.join(root, file)
             
             # create minutiae maps.
-            if (morphed_minutiae_map_path):
+            if (morphed_minutiae_map_path != ''):
                 try:
                     shutil.copy(morphed_minutiae_map_path, output_directory_path)
                     folder_count = folder_count + 1
@@ -36,6 +37,8 @@ def main():
                 except Exception as e:
                     print('Error in copying image -' + str(e))
                     continue
+            else:
+                continue
 
     except Exception as e:
         print('Error -' + str(e))

@@ -253,7 +253,7 @@ def main():
                 print('Folder count - ' + str(folder_count))
             else:
                 with open(data_txt_path, 'a') as file:
-                    file.write('\n' + 'Image Sets - ' + str(os.path.basename(root)) + ',' + str(os.path.basename(img1_cropped_path)) + ',' + str(os.path.basename(img2_cropped_path)))
+                    file.write('\n' + 'Image Sets - ' + str(os.path.basename(root)) + ',' + str(os.path.basename(morphed_minutiae_path)))
                 continue         
 
     except Exception as e:
