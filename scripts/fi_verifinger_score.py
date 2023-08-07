@@ -37,6 +37,7 @@ def main():
     verifinger_score_path = sys.argv[2]
     method = sys.argv[3]
     epochs = sys.argv[4]
+    error_txt = sys.argv[5]
     try:
         folder_count = 0
         verifinger_output_lines = []
@@ -47,14 +48,23 @@ def main():
         else:
             minutia_type = 'PM'
 
-        if epochs == 15:
-            mimg_end_pattern = '_fake_15.png'
-        elif epochs == 30:
-            mimg_end_pattern = '_fake_30.png'
-        elif epochs == 55:
-            mimg_end_pattern = '_fake_55.png'
+        if epochs == '15':
+            if method == 'pointingMinutiae':
+                mimg_end_pattern = '_pm_mmap_fake_15.png'
+            elif method == 'directedMinutiae':
+                mimg_end_pattern = '_dm_mmap_fake_15.png'
+        elif epochs == '30':
+            if method == 'pointingMinutiae':
+                mimg_end_pattern = '_pm_mmap_fake_30.png'
+            elif method == 'directedMinutiae':
+                mimg_end_pattern = '_dm_mmap_fake_30.png'
+        elif epochs == '55':
+            if method == 'pointingMinutiae':
+                mimg_end_pattern = '_pm_mmap_fake_55.png'
+            elif method == 'directedMinutiae':
+                mimg_end_pattern = '_dm_mmap_fake_55.png'
         else:
-            mimg_end_pattern = '_fake_30.png'
+            mimg_end_pattern = '_pm_mmap_fake_30.png'
         
         for root, _, files in os.walk(directory_path): 
             img1_cropped_path = ''
@@ -94,8 +104,12 @@ def main():
                     folder_count = folder_count + 1
                     print('Folder count - '+ str(folder_count))
                 except:
-                    print('Error in getting verfinger score -'  + os.path.basename(img1_cropped_path) + ',' + os.path.basename(img2_cropped_path))
+                    with open(error_txt, 'a') as file:
+                        file.write('\n' + 'Fake file - ' + str(os.path.basename(morphed_img_path)) + str(os.path.basename(root)))
+                    print('Error in getting verfinger score -' + str(os.path.basename(morphed_img_path)) + str(os.path.basename(root)))
                     continue
+            else:
+                continue
         
         with open(verifinger_score_path, 'w', encoding='utf-8') as file:
             for line in verifinger_output_lines:
