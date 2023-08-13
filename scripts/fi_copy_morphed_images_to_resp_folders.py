@@ -59,7 +59,7 @@ def main():
 
                     except Exception as e:
                         with open(data_txt_path, 'a') as file:
-                            file.write('\n' + 'Fake file - ' + str(os.path.basename(fake_file_path)))
+                            file.write('\n' + 'Fake file - ' + str(os.path.basename(root)))
                         print('Error in copying image -' + str(os.path.basename(fake_file_path)) + str(e))
                         continue
                 else:
