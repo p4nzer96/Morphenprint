@@ -4,11 +4,12 @@ import traceback
 from subprocess import check_output
 
 
-def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerprint_img1, fingerprint_img2):
+def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerprint_img1, fingerprint_img2, root):
     try:
         morph_img = str(os.path.basename(morphed_fingerprint_img))
         img1 = str(os.path.basename(fingerprint_img1))
         img2 = str(os.path.basename(fingerprint_img2))
+        base_folder = str(os.path.basename(root))
         morph_img1_score = ''
         morph_img2_score = ''
 
@@ -22,7 +23,7 @@ def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerpr
             if img2 in line:
                 morph_img2_score = str(line.rsplit(';', 1)[-1].strip())
 
-        output_line = '{Minutiae=' + str(minutia_type) + ', Epochs=' + str(epochs) + ', Img_morph=' + morph_img + ', Img1=' + str(img1) + ', Img2=' + str(img2) + ', Morph_Img1_score=' + str(morph_img1_score) + ', Morph_Img2_score=' + str(morph_img2_score) + '}'
+        output_line = '{Minutiae=' + str(minutia_type) + ', Epochs=' + str(epochs) + ', Base_Folder=' + str(base_folder) + ', Img_morph=' + morph_img + ', Img1=' + str(img1) + ', Img2=' + str(img2) + ', Morph_Img1_score=' + str(morph_img1_score) + ', Morph_Img2_score=' + str(morph_img2_score) + '}'
         
         return verifinger_output_lines, output_line
         
@@ -97,7 +98,7 @@ def main():
             
             if (img1_cropped_path and img2_cropped_path and morphed_img_path and sim_core_txt_path):    
                 try:           
-                    verifinger_original_output, verifinger_output_line = get_verifinger_score(minutia_type, epochs, morphed_img_path, img1_cropped_path, img2_cropped_path)
+                    verifinger_original_output, verifinger_output_line = get_verifinger_score(minutia_type, epochs, morphed_img_path, img1_cropped_path, img2_cropped_path, root)
                     verifinger_output_lines.append(verifinger_output_line)
                     with open(sim_core_txt_path, 'a') as file:
                         file.write('\n' + 'Verifinger Scores - ' + str(method) + '-' + str(epochs) + ':' + str(verifinger_original_output))
@@ -105,13 +106,13 @@ def main():
                     print('Folder count - '+ str(folder_count))
                 except:
                     with open(error_txt, 'a') as file:
-                        file.write('\n' + 'Fake file - ' + str(os.path.basename(morphed_img_path)) + str(os.path.basename(root)))
+                        file.write('\n' + 'Fake file - ' + str(os.path.basename(morphed_img_path)) + ', ' + str(os.path.basename(root)))
                     print('Error in getting verfinger score -' + str(os.path.basename(morphed_img_path)) + str(os.path.basename(root)))
                     continue
             else:
                 continue
         
-        with open(verifinger_score_path, 'w', encoding='utf-8') as file:
+        with open(verifinger_score_path, 'a', encoding='utf-8') as file:
             for line in verifinger_output_lines:
                 file.write(f"{line}\n")
    
