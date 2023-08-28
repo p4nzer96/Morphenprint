@@ -8,7 +8,8 @@ import sys
 def find_fingerprint_combinations(input_directory):
     files = os.listdir(input_directory)
     files = [file for file in files if file.endswith('.png')]
-    file_combinations = list(itertools.combinations(files, 2))
+    #file_combinations = list(itertools.combinations(files, 2))
+    file_combinations = list(itertools.combinations(files, 3))
     return file_combinations
 
 
