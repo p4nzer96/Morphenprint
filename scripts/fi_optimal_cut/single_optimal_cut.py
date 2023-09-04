@@ -18,7 +18,7 @@ def get_filtered_minutae_list(minutae_file_path, mask):
             x = int(minutae_list[0].split('=')[1])
             y = int(minutae_list[1].split('=')[1])
 
-            if (mask[x][y] == False):
+            if (mask[y][x] == False):
                 minutae_list_filtered = str(minutae_list_filtered) + str(line)
                 minutae_count = minutae_count + 1
         except:
