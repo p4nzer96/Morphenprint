@@ -82,7 +82,7 @@ def get_filtered_minutae_list(minutae_file_path, mask):
             x = int(minutae_list[0].split('=')[1])
             y = int(minutae_list[1].split('=')[1])
 
-            if (mask[x][y] == False):
+            if (mask[y][x] == False):
                 minutae_list_filtered = str(minutae_list_filtered) + str(line)
                 minutae_count = minutae_count + 1
         except:
@@ -117,7 +117,7 @@ def get_minutiae_df(img1, img2, img3, img1_m_p, img2_m_p, img3_m_p, points1, poi
     img3_1 = get_cropped_image(img3, np.zeros((512,512), np.uint8), points3)
     minutae_count_img1_1, minutae_count_img2_1, minutae_count_img3_1, minutae_list_filtered_img1_1, minutae_list_filtered_img2_1, minutae_list_filtered_img3_1 = get_filtered_minutae_info_of_images(img1_1, img2_1, img3_1, img1_m_p, img2_m_p, img3_m_p)
     if (minutae_count_img1_1 != 0 and minutae_count_img2_1 != 0 and minutae_count_img3_1 != 0):
-        minutae_df = minutae_df.append({'img1_minutae_count': minutae_count_img2_1, 'img2_minutae_count': minutae_count_img3_1, 'img3_minutae_count': minutae_count_img3_1, 'img1_minutae_list_filtered': minutae_list_filtered_img1_1, 'img2_minutae_list_filtered': minutae_list_filtered_img2_1, 'img3_minutae_list_filtered': minutae_list_filtered_img3_1}, ignore_index=True)
+        minutae_df = minutae_df.append({'img1_minutae_count': minutae_count_img1_1, 'img2_minutae_count': minutae_count_img2_1, 'img3_minutae_count': minutae_count_img3_1, 'img1_minutae_list_filtered': minutae_list_filtered_img1_1, 'img2_minutae_list_filtered': minutae_list_filtered_img2_1, 'img3_minutae_list_filtered': minutae_list_filtered_img3_1}, ignore_index=True)
 
 
     img1_2 = get_cropped_image(img1, np.zeros((512,512), np.uint8), points3)
@@ -230,7 +230,6 @@ def main():
                 
                 minutiae_df_final_filtered['mul_value'] = minutiae_df_final_filtered['img1_minutae_count'] * minutiae_df_final_filtered['img2_minutae_count'] * minutiae_df_final_filtered['img3_minutae_count']
                 minutiae_df_final_filtered = minutiae_df_final_filtered.sort_values(by='mul_value', ascending=False)
-
 
                 for _, row in minutiae_df_final_filtered.iterrows():
                     img1_minutiae_count = row['img1_minutae_count']
