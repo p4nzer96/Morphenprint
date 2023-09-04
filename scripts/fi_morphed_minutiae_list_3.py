@@ -93,7 +93,7 @@ def save_transformed_images(img1, img2, img1_path, img2_path, root, image_type, 
         transformed_img2, similarity_score_df = a_whorl.get_whorl_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx, ty, loop_list_img1)
 
     if image_type == 'arch':
-        transformed_img2, similarity_score_df = a_arch.get_arch_fi_sim_score_df(block_size, img2, img1_blob_center_x, img1_blob_center_y, angles_img1, rel_img1, tx, ty)
+        transformed_img2, similarity_score_df = a_arch.get_arch_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx, ty)
 
     # Find out the highest similarity score
     max_sim_score = similarity_score_df[similarity_score_df['similarity_score'] == similarity_score_df['similarity_score'].max()]
