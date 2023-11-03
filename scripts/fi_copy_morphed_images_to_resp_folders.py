@@ -7,17 +7,9 @@ def main():
     # parse command line parameters
     input_directory_path = sys.argv[1]
     output_directory_path = sys.argv[2]
-    method = sys.argv[3]
-    epochs = sys.argv[4]
-    data_txt_path = sys.argv[5]
+    epochs = sys.argv[3]
+    data_txt_path = sys.argv[4]
     
-    morphed_minutiae_map_path = ''
-    if method == 'pointingMinutiae':
-        end_path_str = '_pm_mmap.png'
-    elif method == 'directedMinutiae':
-        end_path_str = '_dm_mmap.png'
-    else:
-        end_path_str = '_pm_mmap.png'
     try:
         folder_count = 0
         all_files = os.listdir(input_directory_path)
@@ -26,20 +18,21 @@ def main():
             fake_file_path = os.path.join(input_directory_path, fake_file)
             for root, _, files in os.walk(output_directory_path):
                 count = 0
-                morphed_minutiae_map_path = ''
+                morphed_minutiae_list_name = ''
                 for file in files:
                     # Check if the file is an image
-                    if (file.lower().endswith(end_path_str)):
+                    if (file.lower().endswith('_mm.txt')):
                         count = count + 1
                         if (count == 1):
-                            morphed_minutiae_map_path = os.path.join(root, file)
+                            morphed_minutiae_list_name = file
             
-                if (morphed_minutiae_map_path != '' and fake_file_path):
+                if (morphed_minutiae_list_name != '' and fake_file_path):
                     try:
-                        morphed_minutiae_map_file_name = str(os.path.splitext(os.path.basename(morphed_minutiae_map_path))[0])
+                        morphed_minutiae_list_file_name = str(morphed_minutiae_list_name).split('_mm', 1)[0]
                         fake_file_name = str(os.path.splitext(os.path.basename(fake_file_path))[0])
+                        fake_file_name_part = fake_file_name.split('_mm', 1)[0]
 
-                        if (morphed_minutiae_map_file_name in fake_file_name):
+                        if (morphed_minutiae_list_file_name == fake_file_name_part):
                             fake_file_end_str = ''
                             if (epochs == '15'):
                                 fake_file_end_str = '_15.png'

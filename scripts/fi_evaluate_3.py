@@ -19,17 +19,18 @@ def main():
         try:
             if len(line) > 0 and line[0] == '{':
                 morph_img1_score = float(line[line.find("Morph_Img1_score=") + len("Morph_Img1_score=") : line.find(", Morph_Img2_score=")])
-                morph_img2_score = float(line[line.find("Morph_Img2_score=") + len("Morph_Img2_score=") : line.find("}")])
+                morph_img2_score = float(line[line.find("Morph_Img2_score=") + len("Morph_Img2_score=") : line.find(", Morph_Img3_score=")])
+                morph_img3_score = float(line[line.find("Morph_Img3_score=") + len("Morph_Img3_score=") : line.find("}")])
 
-                if (morph_img1_score > 0 and morph_img2_score > 0):
+                if (morph_img1_score > 0 and morph_img2_score > 0 and morph_img3_score > 0):
 
-                    if (morph_img1_score > 36 and morph_img2_score > 36):
+                    if (morph_img1_score > 36 and morph_img2_score > 36 and morph_img3_score > 36):
                         score36_count = score36_count + 1
                     
-                    if (morph_img1_score > 48 and morph_img2_score > 48):
+                    if (morph_img1_score > 48 and morph_img2_score > 48 and morph_img3_score > 48):
                         score48_count = score48_count + 1
                     
-                    if (morph_img1_score > 60 and morph_img2_score > 60):
+                    if (morph_img1_score > 60 and morph_img2_score > 60 and morph_img3_score > 60):
                         score60_count = score60_count + 1
                 
                     print('Line -', index)

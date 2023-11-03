@@ -4,17 +4,19 @@ import traceback
 from subprocess import check_output
 
 
-def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerprint_img1, fingerprint_img2, root):
+def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerprint_img1, fingerprint_img2, fingerprint_img3, root):
     try:
         morph_img = str(os.path.basename(morphed_fingerprint_img))
         img1 = str(os.path.basename(fingerprint_img1))
         img2 = str(os.path.basename(fingerprint_img2))
+        img3 = str(os.path.basename(fingerprint_img3))
         base_folder = str(os.path.basename(root))
         morph_img1_score = ''
         morph_img2_score = ''
+        morph_img3_score = ''
 
         # get the response
-        verifinger_output = check_output( ['Verifinger1toN', morphed_fingerprint_img, fingerprint_img1, fingerprint_img2] )
+        verifinger_output = check_output( ['Verifinger1toN', morphed_fingerprint_img, fingerprint_img1, fingerprint_img2, fingerprint_img3] )
         verifinger_output_lines = verifinger_output.split(b'\n')
         for line in verifinger_output_lines:
             line = line.decode('utf-8')
@@ -25,8 +27,10 @@ def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerpr
                     morph_img1_score = str(line_parts[-1].strip())
                 if image_name == img2:
                     morph_img2_score = str(line_parts[-1].strip())
+                if image_name == img3:
+                    morph_img3_score = str(line_parts[-1].strip())
 
-        output_line = '{Minutiae=' + str(minutia_type) + ', Epochs=' + str(epochs) + ', Base_Folder=' + str(base_folder) + ', Img_morph=' + morph_img + ', Img1=' + str(img1) + ', Img2=' + str(img2) + ', Morph_Img1_score=' + str(morph_img1_score) + ', Morph_Img2_score=' + str(morph_img2_score) + '}'
+        output_line = '{Minutiae=' + str(minutia_type) + ', Epochs=' + str(epochs) + ', Base_Folder=' + str(base_folder) + ', Img_morph=' + morph_img + ', Img1=' + str(img1) + ', Img2=' + str(img2) + ', Img3=' + str(img3) + ', Morph_Img1_score=' + str(morph_img1_score) + ', Morph_Img2_score=' + str(morph_img2_score) + ', Morph_Img3_score=' + str(morph_img3_score) + '}'
         
         return verifinger_output_lines, output_line
         
@@ -73,6 +77,7 @@ def main():
         for root, _, files in os.walk(directory_path): 
             img1_cropped_path = ''
             img2_cropped_path = ''
+            img3_cropped_path = ''
             morphed_img_path = ''
             sim_core_txt_path = ''
             img_count = 0
@@ -88,6 +93,8 @@ def main():
                         img1_cropped_path = os.path.join(root, file)
                     if (img_count == 2):
                         img2_cropped_path = os.path.join(root, file)
+                    if (img_count == 3):
+                        img3_cropped_path = os.path.join(root, file)
                 
                 if (file.lower().endswith(mimg_end_pattern)):
                     morphed_img_count = morphed_img_count + 1
@@ -99,9 +106,9 @@ def main():
                     if (sim_score_txt_count == 1):
                         sim_core_txt_path = os.path.join(root, file)
             
-            if (img1_cropped_path and img2_cropped_path and morphed_img_path and sim_core_txt_path):    
+            if (img1_cropped_path and img2_cropped_path and img3_cropped_path and morphed_img_path and sim_core_txt_path):    
                 try:           
-                    verifinger_original_output, verifinger_output_line = get_verifinger_score(minutia_type, epochs, morphed_img_path, img1_cropped_path, img2_cropped_path, root)
+                    verifinger_original_output, verifinger_output_line = get_verifinger_score(minutia_type, epochs, morphed_img_path, img1_cropped_path, img2_cropped_path, img3_cropped_path, root)
                     verifinger_output_lines.append(verifinger_output_line)
                     with open(sim_core_txt_path, 'a') as file:
                         file.write('\n' + 'Verifinger Scores - ' + str(method) + '-' + str(epochs) + ':' + str(verifinger_original_output))

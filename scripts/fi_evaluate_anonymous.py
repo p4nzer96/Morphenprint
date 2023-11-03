@@ -8,9 +8,8 @@ def main():
     results_path = sys.argv[1]  
     save_results_path = sys.argv[2] 
     results_category = sys.argv[3]
-    score36_count = 0
-    score48_count = 0
-    score60_count = 0
+    score_anon_count = 0
+    score_1match_count = 0
     with open(results_path,"rt") as txtfile:
         output = txtfile.read();
     lines = output.split('\n')
@@ -21,21 +20,15 @@ def main():
                 morph_img1_score = float(line[line.find("Morph_Img1_score=") + len("Morph_Img1_score=") : line.find(", Morph_Img2_score=")])
                 morph_img2_score = float(line[line.find("Morph_Img2_score=") + len("Morph_Img2_score=") : line.find("}")])
 
-                if (morph_img1_score > 0 and morph_img2_score > 0):
 
-                    if (morph_img1_score > 36 and morph_img2_score > 36):
-                        score36_count = score36_count + 1
-                    
-                    if (morph_img1_score > 48 and morph_img2_score > 48):
-                        score48_count = score48_count + 1
-                    
-                    if (morph_img1_score > 60 and morph_img2_score > 60):
-                        score60_count = score60_count + 1
-                
-                    print('Line -', index)
-                else: 
+                if (morph_img1_score <= 60 and morph_img2_score <= 60):
+                    score_anon_count = score_anon_count + 1
                     continue
-
+                    
+                if (morph_img1_score <= 60 or morph_img2_score <= 60):
+                    score_1match_count = score_1match_count + 1
+                
+                print('Line -', index)
                 
         except Exception as e:
             print('Error -' + str(e))
@@ -43,7 +36,7 @@ def main():
             continue
 
     with open(save_results_path, 'a') as file:
-        file.write('\n \n' + str(results_category) + ' - (' + str(len(lines)) + ')' + '\n' + 'Score_36_Count - ' + str(score36_count) + ', Score_48_Count - ' + str(score48_count) + ', Score_60_Count - ' + str(score60_count))     
+        file.write('\n \n' + str(results_category) + ' - (' + str(len(lines)) + ')' + '\n' + 'Score_Anonymous_60 - ' + str(score_anon_count) + ', Score_1Match_Count_60 - ' + str(score_1match_count))     
 
 if __name__ == '__main__':
     main()
