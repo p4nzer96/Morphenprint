@@ -4,7 +4,8 @@ import traceback
 from subprocess import check_output
 
 
-def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerprint_img1, fingerprint_img2, fingerprint_img3, root):
+def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerprint_img1, fingerprint_img2,
+                         fingerprint_img3, root):
     try:
         morph_img = str(os.path.basename(morphed_fingerprint_img))
         img1 = str(os.path.basename(fingerprint_img1))
@@ -16,7 +17,8 @@ def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerpr
         morph_img3_score = ''
 
         # get the response
-        verifinger_output = check_output( ['Verifinger1toN', morphed_fingerprint_img, fingerprint_img1, fingerprint_img2, fingerprint_img3] )
+        verifinger_output = check_output(
+            ['Verifinger1toN', morphed_fingerprint_img, fingerprint_img1, fingerprint_img2, fingerprint_img3])
         verifinger_output_lines = verifinger_output.split(b'\n')
         for line in verifinger_output_lines:
             line = line.decode('utf-8')
@@ -30,10 +32,13 @@ def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerpr
                 if image_name == img3:
                     morph_img3_score = str(line_parts[-1].strip())
 
-        output_line = '{Minutiae=' + str(minutia_type) + ', Epochs=' + str(epochs) + ', Base_Folder=' + str(base_folder) + ', Img_morph=' + morph_img + ', Img1=' + str(img1) + ', Img2=' + str(img2) + ', Img3=' + str(img3) + ', Morph_Img1_score=' + str(morph_img1_score) + ', Morph_Img2_score=' + str(morph_img2_score) + ', Morph_Img3_score=' + str(morph_img3_score) + '}'
-        
+        output_line = '{Minutiae=' + str(minutia_type) + ', Epochs=' + str(epochs) + ', Base_Folder=' + str(
+            base_folder) + ', Img_morph=' + morph_img + ', Img1=' + str(img1) + ', Img2=' + str(img2) + ', Img3=' + str(
+            img3) + ', Morph_Img1_score=' + str(morph_img1_score) + ', Morph_Img2_score=' + str(
+            morph_img2_score) + ', Morph_Img3_score=' + str(morph_img3_score) + '}'
+
         return verifinger_output_lines, output_line
-        
+
     except Exception as e:
         print('Error in fetching verfinger score -' + str(e))
         traceback.print_exc()
@@ -73,8 +78,8 @@ def main():
                 mimg_end_pattern = '_dm_mmap_fake_55.png'
         else:
             mimg_end_pattern = '_pm_mmap_fake_30.png'
-        
-        for root, _, files in os.walk(directory_path): 
+
+        for root, _, files in os.walk(directory_path):
             img1_cropped_path = ''
             img2_cropped_path = ''
             img3_cropped_path = ''
@@ -83,51 +88,60 @@ def main():
             img_count = 0
             morphed_img_count = 0
             sim_score_txt_count = 0
-            verifinger_output_line = ''
-            verifinger_original_output = []
             for file in files:
                 # Check if the file is an image
-                if (file.lower().endswith('.png') and (not file.lower().endswith('_cropped.png')) and (not file.lower().endswith('_mmap.png')) and (not file.lower().endswith('_overlapped.png')) and (not file.lower().endswith('_15.png')) and (not file.lower().endswith('_30.png')) and (not file.lower().endswith('_55.png'))):
+                if file.lower().endswith('.png') and (not file.lower().endswith('_cropped.png')) and (
+                not file.lower().endswith('_mmap.png')) and (not file.lower().endswith('_overlapped.png')) and (
+                not file.lower().endswith('_15.png')) and (not file.lower().endswith('_30.png')) and (
+                not file.lower().endswith('_55.png')):
                     img_count = img_count + 1
-                    if (img_count == 1):
+                    if img_count == 1:
                         img1_cropped_path = os.path.join(root, file)
-                    if (img_count == 2):
+                    if img_count == 2:
                         img2_cropped_path = os.path.join(root, file)
-                    if (img_count == 3):
+                    if img_count == 3:
                         img3_cropped_path = os.path.join(root, file)
-                
-                if (file.lower().endswith(mimg_end_pattern)):
+
+                if file.lower().endswith(mimg_end_pattern):
                     morphed_img_count = morphed_img_count + 1
-                    if (morphed_img_count == 1):
+                    if morphed_img_count == 1:
                         morphed_img_path = os.path.join(root, file)
-                
-                if (file.lower().endswith('_sim_score.txt')):
+
+                if file.lower().endswith('_sim_score.txt'):
                     sim_score_txt_count = sim_score_txt_count + 1
-                    if (sim_score_txt_count == 1):
+                    if sim_score_txt_count == 1:
                         sim_core_txt_path = os.path.join(root, file)
-            
-            if (img1_cropped_path and img2_cropped_path and img3_cropped_path and morphed_img_path and sim_core_txt_path):    
-                try:           
-                    verifinger_original_output, verifinger_output_line = get_verifinger_score(minutia_type, epochs, morphed_img_path, img1_cropped_path, img2_cropped_path, img3_cropped_path, root)
+
+            if img1_cropped_path and img2_cropped_path and img3_cropped_path and morphed_img_path and sim_core_txt_path:
+                try:
+                    verifinger_original_output, verifinger_output_line = get_verifinger_score(minutia_type, epochs,
+                                                                                              morphed_img_path,
+                                                                                              img1_cropped_path,
+                                                                                              img2_cropped_path,
+                                                                                              img3_cropped_path, root)
                     verifinger_output_lines.append(verifinger_output_line)
                     with open(sim_core_txt_path, 'a') as file:
-                        file.write('\n' + 'Verifinger Scores - ' + str(method) + '-' + str(epochs) + ':' + str(verifinger_original_output))
+                        file.write('\n' + 'Verifinger Scores - ' + str(method) + '-' + str(epochs) + ':' + str(
+                            verifinger_original_output))
                     folder_count = folder_count + 1
-                    print('Folder count - '+ str(folder_count))
+                    print('Folder count - ' + str(folder_count))
                 except:
                     with open(error_txt, 'a') as file:
-                        file.write('\n' + 'Fake file - ' + str(os.path.basename(morphed_img_path)) + ', ' + str(os.path.basename(root)))
-                    print('Error in getting verfinger score -' + str(os.path.basename(morphed_img_path)) + str(os.path.basename(root)))
+                        file.write('\n' + 'Fake file - ' + str(os.path.basename(morphed_img_path)) + ', ' + str(
+                            os.path.basename(root)))
+                    print('Error in getting verfinger score -' + str(os.path.basename(morphed_img_path)) + str(
+                        os.path.basename(root)))
                     continue
             else:
                 continue
-        
+
         with open(verifinger_score_path, 'a', encoding='utf-8') as file:
             for line in verifinger_output_lines:
                 file.write(f"{line}\n")
-   
+
     except Exception as e:
-        print('Error -'  + os.path.basename(img1_cropped_path) + ',' + os.path.basename(img2_cropped_path) + '-' +str(e))
+        print(
+            'Error -' + os.path.basename(img1_cropped_path) + ',' + os.path.basename(img2_cropped_path) + '-' + str(e))
         traceback.print_exc()
 
 

@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 import sys
-import traceback
 import numpy as np
 
 
@@ -23,7 +22,6 @@ def get_data(directory_path):
             value = parts[1].strip()
             values.append(float(value))
 
-    
     return np.array(values, dtype=np.float64)
 
 
@@ -39,7 +37,7 @@ def main():
     org_1 = get_data(directory_path_org_1)
     org_2 = get_data(directory_path_org_2)
     org_3 = get_data(directory_path_org_3)
-    
+
     res_15 = get_data(directory_path_res_15)
     res_30 = get_data(directory_path_res_30)
     res_55 = get_data(directory_path_res_55)
@@ -74,7 +72,6 @@ def main():
     ax.set_xticks(x_ticks)
     ax.set_xticklabels(x_ticks, fontsize=20)
 
-
     # Add labels and title
     ax.set_xlabel('NFIQ2 Scores', fontsize=25)
     ax.set_ylabel('Density', fontsize=25)
@@ -84,6 +81,7 @@ def main():
 
     # Show the graph
     plt.show()
+
 
 if __name__ == '__main__':
     main()

@@ -1,6 +1,4 @@
 import sys
-import os
-import shutil
 import traceback
 
 def main():
@@ -12,7 +10,7 @@ def main():
     score48_count = 0
     score60_count = 0
     with open(results_path,"rt") as txtfile:
-        output = txtfile.read();
+        output = txtfile.read()
     lines = output.split('\n')
     lines = [line for line in lines if line.strip() != '']
     for index, line in enumerate(lines):
@@ -43,7 +41,4 @@ def main():
             continue
 
     with open(save_results_path, 'a') as file:
-        file.write('\n \n' + str(results_category) + ' - (' + str(len(lines)) + ')' + '\n' + 'Score_36_Count - ' + str(score36_count) + ', Score_48_Count - ' + str(score48_count) + ', Score_60_Count - ' + str(score60_count))     
-
-if __name__ == '__main__':
-    main()
+        file.write('\n \n' + str(results_category) + ' - (' + str(len(lines)) + ')' + '\n' + 'Score_36_Count - ' + str(score36_count) + ', Score_48_Count - ' + str(score48_count) + ', Score_60_Count - ' + str(score60_count))

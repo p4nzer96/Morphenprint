@@ -8,29 +8,31 @@ from matplotlib.lines import Line2D
 def get_x_y_coordinates(directory_path):
     X = []
     Y = []
-    with open(directory_path,"rt") as txtfile:
+    with open(directory_path, "rt") as txtfile:
         output = txtfile.read()
     lines = output.split('\n')
     lines = [line for line in lines if line.strip() != '']
     for index, line in enumerate(lines):
         try:
             if len(line) > 0 and line[0] == '{':
-                X_F1_matching_score = float(line[line.find("Morph_Img1_score=") + len("Morph_Img1_score=") : line.find(", Morph_Img2_score=")])
-                Y_F2_matching_score = float(line[line.find("Morph_Img2_score=") + len("Morph_Img2_score=") : line.find("}")])
+                X_F1_matching_score = float(
+                    line[line.find("Morph_Img1_score=") + len("Morph_Img1_score="): line.find(", Morph_Img2_score=")])
+                Y_F2_matching_score = float(
+                    line[line.find("Morph_Img2_score=") + len("Morph_Img2_score="): line.find("}")])
 
                 if (X_F1_matching_score and Y_F2_matching_score):
                     X.append(X_F1_matching_score)
-                    Y.append(Y_F2_matching_score)                
+                    Y.append(Y_F2_matching_score)
                     print('Line -', index)
-                else: 
+                else:
                     continue
 
-                
+
         except Exception as e:
             print('Error -' + str(e))
             traceback.print_exc()
             continue
-    
+
     return X, Y
 
 
@@ -52,7 +54,7 @@ def main():
         if x[i] < 36 and y[i] < 36:
             x_virtual_identity.append(x[i])
             y_virtual_identity.append(y[i])
-    
+
     plt.scatter(x_double_identity, y_double_identity, color='green', marker='o', s=10)
     plt.scatter(x_virtual_identity, y_virtual_identity, color='red', marker='o', s=10)
 
@@ -70,12 +72,13 @@ def main():
     custom_legend = [
         plt.Line2D([0], [0], marker='o', color='w', label='Double-Identity FPs', markersize=5, markerfacecolor='green'),
         plt.Line2D([0], [0], marker='o', color='w', label='Virtual-Identity FPs', markersize=5, markerfacecolor='red'),
-        plt.Line2D([0], [0], marker='o', color='w', label='Partial-Identity FPs', markersize=5, markerfacecolor='orange'),
+        plt.Line2D([0], [0], marker='o', color='w', label='Partial-Identity FPs', markersize=5,
+                   markerfacecolor='orange'),
         Line2D([0], [0], color='#a1045a', linestyle='--', label='Decision Threshold 1'),
         Line2D([0], [0], color='#710193', linestyle='--', label='Decision Threshold 2'),
         Line2D([0], [0], color='#311432', linestyle='--', label='Decision Threshold 3')
     ]
-    
+
     # Determine the x and y axis limits
     x_min, x_max = 0, 210
     y_min, y_max = 0, 210
@@ -97,8 +100,6 @@ def main():
     plt.xticks(x_ticks, fontsize=20)
     plt.yticks(y_ticks, fontsize=20)
 
-
-
     # Adding labels and title
     plt.xlabel('$F_1$ Matching Score', fontsize=25)
     plt.ylabel('$F_2$ Matching Score', fontsize=25)
@@ -108,6 +109,7 @@ def main():
 
     # Display the plot
     plt.show()
+
 
 if __name__ == '__main__':
     main()
