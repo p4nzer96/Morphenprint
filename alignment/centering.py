@@ -1,6 +1,5 @@
 import cv2
 
-
 def get_center_of_image(img):
     """
     Get the center of the fingerprint image

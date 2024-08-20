@@ -1,18 +1,18 @@
-import numpy as np
-from scripts import similarity
 import traceback
+
+import numpy as np
 import pandas as pd
 
-from transform import rotate
-from transform import translate
-from alignment import orientation
+from transform import rotate, translate
+from alignment.orientation import calculate_angles
+from alignment.similarity import calculate_similarity
 
-def get_best_arch_fi_alignment_config(img2, block_size, angles_img1, rel_img1, sim_score_arch_df):
+def get_best_arch_align(img2, W, angles_img1, rel_img1):
     """
     Get the best arch fingerprint alignment configuration
     Args: 
         img2: The second fingerprint image
-        block_size: The block size
+        W: The block size
         angles_img1: The angles image of the first fingerprint image
         rel_img1: The reliability image of the first fingerprint image
 
@@ -20,8 +20,10 @@ def get_best_arch_fi_alignment_config(img2, block_size, angles_img1, rel_img1, s
         sim_score_arch_df: The similarity score dataframe
     """
 
+    sim_score_arch_df = pd.DataFrame()
+
     # Get the center of the images
-    img2_h_center, img2_w_center = img2.shape[1] // 2, img2.shape[0] // 2
+    img2_center = img2.shape[1] // 2, img2.shape[0] // 2
     # Loop through the translation values
     for value in np.arange(-5, 6, 1):
         img2_t = translate(img2, value, value)
@@ -29,11 +31,11 @@ def get_best_arch_fi_alignment_config(img2, block_size, angles_img1, rel_img1, s
         for angle in np.arange(-30, 31, 1):
             try:
                 # Rotate the image
-                img2_t_r = rotate(img2_t, angle, (img2_w_center, img2_h_center))
+                img2_t_r = rotate(img2_t, angle, img2_center)
                 # Calculate the angles and reliability of the rotated image
-                _, angles_img2_t_r, rel_img2_t_r = orientation.calculate_angles(img2_t_r, block_size, smooth=True)
+                _, angles_img2_t_r, rel_img2_t_r = calculate_angles(img2_t_r, W, smooth=True)
                 # Calculate the similarity score
-                similarity_score = similarity.calculate_similarity(angles_img1, angles_img2_t_r, rel_img1, rel_img2_t_r)
+                similarity_score = calculate_similarity(angles_img1, angles_img2_t_r, rel_img1, rel_img2_t_r)
                 # Append the similarity score to the dataframe
                 sim_score_arch_df = sim_score_arch_df.append({'rotation_angle': angle,
                                                               'tx': value,
@@ -46,13 +48,13 @@ def get_best_arch_fi_alignment_config(img2, block_size, angles_img1, rel_img1, s
     return sim_score_arch_df
 
 
-def get_arch_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx_arch, ty_arch):
+def get_arch_fi_sim_score_df(img2, W, angles_img1, rel_img1, tx_arch, ty_arch):
     """
     Get the similarity score dataframe for arch alignment
 
     Args:
-        block_size: The block size
         img2: The second fingerprint image
+        W: The block size
         angles_img1: The angles image of the first fingerprint image
         rel_img1: The reliability image of the first fingerprint image
         tx_arch: The translation in x direction
@@ -63,13 +65,12 @@ def get_arch_fi_sim_score_df(block_size, img2, angles_img1, rel_img1, tx_arch, t
         sim_score_arch_df: The similarity score dataframe
     """
     try:
-        sim_score_arch_df = pd.DataFrame()
 
         # Translate the image
         img2_t = translate(img2, tx_arch, ty_arch)
 
         # Get the best alignment configuration
-        sim_score_arch_df = get_best_arch_fi_alignment_config(img2_t, block_size, angles_img1, rel_img1, sim_score_arch_df)
+        sim_score_arch_df = get_best_arch_align(img2_t, W, angles_img1, rel_img1)
     
     except Exception as e:
         print('Error in arch alignment -' + str(e))

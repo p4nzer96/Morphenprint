@@ -92,7 +92,8 @@ def get_minutiae_df(img1_cropped, img2_cropped, img1_cropped_minutiae_path, img2
                 img1_1, img2_2, img1_cropped_minutiae_path, img2_cropped_minutiae_path)
             if minutae_count_img1_1 != 0 and minutae_count_img2_2 != 0:
                 minutiae_df = minutiae_df.append(
-                    {'img1_minutae_count': minutae_count_img1_1, 'img2_minutae_count': minutae_count_img2_2,
+                    {'img1_minutae_count': minutae_count_img1_1, 
+                     'img2_minutae_count': minutae_count_img2_2,
                      'img1_minutae_list_filtered': minutae_list_filtered_img1_1,
                      'img2_minutae_list_filtered': minutae_list_filtered_img2_2}, ignore_index=True)
 
@@ -100,12 +101,13 @@ def get_minutiae_df(img1_cropped, img2_cropped, img1_cropped_minutiae_path, img2
                 img1_2, img2_1, img1_cropped_minutiae_path, img2_cropped_minutiae_path)
             if minutae_count_img1_2 != 0 and minutae_count_img2_1 != 0:
                 minutiae_df = minutiae_df.append(
-                    {'img1_minutae_count': minutae_count_img1_2, 'img2_minutae_count': minutae_count_img2_1,
+                    {'img1_minutae_count': minutae_count_img1_2, 
+                     'img2_minutae_count': minutae_count_img2_1,
                      'img1_minutae_list_filtered': minutae_list_filtered_img1_2,
                      'img2_minutae_list_filtered': minutae_list_filtered_img2_1}, ignore_index=True)
 
-            y1 = y1 + 1
-            y2 = y2 - 1
+            y1 += 1
+            y2 -= 1
 
         except Exception:
             continue

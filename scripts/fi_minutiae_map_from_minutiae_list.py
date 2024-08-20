@@ -26,14 +26,14 @@ def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
             top = int(y - 0.5 * patch_size + 0.5)
             bottom = int(y + 0.5 * patch_size + 0.5)
             #foo = minutiae_map[top:bottom, left:right]
-            #print(foo.size)
+
             minutiae_map[top:bottom, left:right] = bw_image[top:bottom, left:right]
 
     return minutiae_map
 
 
 def create_pointingMinutiae(minutiae_list, im_size, square_size, line_length, line_width, min_reliability):
-    """Create minutia map from a list of minitiae by depicting a minutiae as a circle and a connected 
+    """Create minutia map from a list of minutiae by depicting a minutiae as a circle and a connected
     line pointing to the minutiae direction. Endings are in black and bifurcations are in white. 
     """
 

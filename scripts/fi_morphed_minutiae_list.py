@@ -11,7 +11,9 @@ import alignment.arch_alignment as a_arch
 import alignment.loop_alignment as a_loop
 import alignment.whorl_alignment as a_whorl
 
-from alignment import translation, rotation, centering, orientation
+from alignment.transform import translate, rotate
+from alignment.centering import get_center_of_image
+from alignment.orientation import calculate_angles
 from alignment.fi_alignment_config import get_loop_list_angles_rel_img
 
 warnings.filterwarnings("ignore")
@@ -21,11 +23,11 @@ def get_updated_imgs(img1, img2, loop_difference_x):
     x_abs_diff = np.abs(loop_difference_x) - 100
 
     if loop_difference_x < 0:
-        img1_updated = translation.translate_image(img1, x_abs_diff, 0)
-        img2_updated = translation.translate_image(img2, -x_abs_diff, 0)
+        img1_updated = translate(img1, x_abs_diff, 0)
+        img2_updated = translate(img2, -x_abs_diff, 0)
     elif loop_difference_x > 0:
-        img1_updated = translation.translate_image(img1, -x_abs_diff, 0)
-        img2_updated = translation.translate_image(img2, x_abs_diff, 0)
+        img1_updated = translate(img1, -x_abs_diff, 0)
+        img2_updated = translate(img2, x_abs_diff, 0)
     else:
         img1_updated = img1
         img2_updated = img2
@@ -117,11 +119,10 @@ def main():
                 elif image_type == 'arch':
 
                     # Get center of a fingerprint image
-                    img1_blob_center_x, img1_blob_center_y = centering.get_center_of_image(img1)
-                    img2_blob_center_x, img2_blob_center_y = centering.get_center_of_image(img2)
+                    img1_blob_center_x, img1_blob_center_y = get_center_of_image(img1)
+                    img2_blob_center_x, img2_blob_center_y = get_center_of_image(img2)
 
-                    smooth_angles_img1, angles_img1, rel_img1 = orientation.calculate_angles(img1, block_size,
-                                                                                             smooth=True)
+                    smooth_angles_img1, angles_img1, rel_img1 = calculate_angles(img1, block_size, smooth=True)
 
                     # translate values
                     tx = img1_blob_center_x - img2_blob_center_x
@@ -149,9 +150,9 @@ def main():
                     similarity_score_df['similarity_score'] == similarity_score_df['similarity_score'].max()]
 
                 # Apply the translation and rotation values on the transformed image2
-                img2_t = translation.translate_image(transformed_img2, int(max_sim_score['tx']),
+                img2_t = translate(transformed_img2, int(max_sim_score['tx']),
                                                      int(max_sim_score['ty']))
-                img2_t_r = rotation.rotate_image(img2_t, int(max_sim_score['rotation_angle']),
+                img2_t_r = rotate(img2_t, int(max_sim_score['rotation_angle']),
                                                  (img2_w_center, img2_h_center))
 
                 # Find core points of the new image and write core points of both image1 and image2 to a text file

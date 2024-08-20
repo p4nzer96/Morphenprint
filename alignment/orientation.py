@@ -6,7 +6,7 @@ import cv2 as cv
 
 def calculate_angles(im, W, smooth=False):
     """
-    anisotropy orientation estimate, based on equations 5 from:
+    Anisotropy orientation estimate, based on equations 5 from:
     https://pdfs.semanticscholar.org/6e86/1d0b58bdf7e2e2bb0ecbf274cee6974fe13f.pdf
 
     Attributes:
@@ -20,11 +20,11 @@ def calculate_angles(im, W, smooth=False):
 
     y, x = im.shape
 
-    sobelOperator = np.array([[-1, 0, 1],
-                              [-2, 0, 2],
-                              [-1, 0, 1]], dtype=np.int64)
+    # Defining the Sobel filters
+    ySobel = np.array([[-1, 0, 1],
+                       [-2, 0, 2],
+                       [-1, 0, 1]], dtype=np.int64)
 
-    ySobel = sobelOperator
     xSobel = np.transpose(ySobel)
 
     ang_result = [[] for _ in range(1, y, W)]

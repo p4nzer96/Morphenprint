@@ -3,7 +3,6 @@ import os
 import traceback
 from subprocess import check_output
 
-
 def get_verifinger_minutiae(img_path, minutiae_save_path):
     try:
         # get the response

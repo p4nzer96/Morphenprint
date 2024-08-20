@@ -3,7 +3,6 @@ import os
 import traceback
 from subprocess import check_output
 
-
 def get_verifinger_score(minutia_type, epochs, morphed_fingerprint_img, fingerprint_img1, fingerprint_img2, root):
     try:
         morph_img = str(os.path.basename(morphed_fingerprint_img))
@@ -115,7 +114,7 @@ def main():
                             verifinger_original_output))
                     folder_count = folder_count + 1
                     print('Folder count - ' + str(folder_count))
-                except:
+                except Exception:
                     with open(error_txt, 'a') as file:
                         file.write('\n' + 'Fake file - ' + str(os.path.basename(morphed_img_path)) + ', ' + str(
                             os.path.basename(root)))

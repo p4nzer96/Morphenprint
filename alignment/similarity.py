@@ -49,4 +49,4 @@ def calculate_similarity(theta1, theta2, rel1, rel2):
         similarity_score = nominator / denominator
         return similarity_score
     except Exception:
-        print("error in similarity calulation")
+        print("Error in similarity calulation")
