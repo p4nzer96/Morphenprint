@@ -1,5 +1,6 @@
 import cv2
 
+
 def get_center_of_image(img):
     """
     Get the center of the fingerprint image
@@ -26,3 +27,19 @@ def get_center_of_image(img):
     center_x, center_y = map(int, center)
 
     return center_x, center_y
+
+
+def split_list_into_halves(input_list):
+    """
+    Split the input list into two halves
+
+    Args:
+        input_list: The input list to be split
+
+    Returns:
+        tuple: The first and the second half of the input list
+    """
+    middle = len(input_list) // 2
+    first_half = input_list[:middle + len(input_list) % 2]
+    second_half = input_list[middle + len(input_list) % 2:]
+    return first_half, second_half

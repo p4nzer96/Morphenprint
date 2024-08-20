@@ -20,15 +20,18 @@ def get_best_arch_align(img2, W, angles_img1, rel_img1):
         sim_score_arch_df: The similarity score dataframe
     """
 
+    # Initialize the variables
+    start_t, end_t, t_step = -5, 5, 1  # The translation values
+    start_angle, end_angle, angle_step = -30, 30, 1  # The rotation angles
     sim_score_arch_df = pd.DataFrame()
 
     # Get the center of the images
     img2_center = img2.shape[1] // 2, img2.shape[0] // 2
     # Loop through the translation values
-    for value in np.arange(-5, 6, 1):
+    for value in np.arange(start_t, end_t + 1, t_step):
         img2_t = translate(img2, value, value)
         # Loop through the rotation angles
-        for angle in np.arange(-30, 31, 1):
+        for angle in np.arange(start_angle, end_angle + 1, angle_step):
             try:
                 # Rotate the image
                 img2_t_r = rotate(img2_t, angle, img2_center)

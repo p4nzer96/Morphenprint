@@ -32,5 +32,5 @@ def mindtct_runner(ds_path, new_data_path):
 
 
 if __name__ == "__main__":
-    mindtct_runner(ds_path=Path("/home/p4nzer96/Desktop/Morphing/Fingerprint/Morphenprint/livdet2021test/Dermalog_Consensual/30_26_0/Live"),
-                     new_data_path=(Path(__file__).parent.parent.parent / "LivDet2021-DS"))
+    mindtct_runner(ds_path=Path("/livdet2021test/Dermalog_Consensual/30_26_0/Live"),
+                   new_data_path=(Path(__file__).parent.parent.parent / "LivDet2021-DS"))

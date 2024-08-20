@@ -19,19 +19,19 @@ def main():
                 morph_img1_score = float(line[line.find("Morph_Img1_score=") + len("Morph_Img1_score=") : line.find(", Morph_Img2_score=")])
                 morph_img2_score = float(line[line.find("Morph_Img2_score=") + len("Morph_Img2_score=") : line.find("}")])
 
-                if (morph_img1_score > 0 and morph_img2_score > 0):
+                if morph_img1_score > 0 and morph_img2_score > 0:
 
-                    if (morph_img1_score > 36 and morph_img2_score > 36):
-                        score36_count = score36_count + 1
-                    
-                    if (morph_img1_score > 48 and morph_img2_score > 48):
-                        score48_count = score48_count + 1
-                    
-                    if (morph_img1_score > 60 and morph_img2_score > 60):
+                    if morph_img1_score > 36 and morph_img2_score > 36:
+                        score36_count += 1
+
+                    if morph_img1_score > 48 and morph_img2_score > 48:
+                        score48_count += + 1
+
+                    if morph_img1_score > 60 and morph_img2_score > 60:
                         score60_count = score60_count + 1
-                
+
                     print('Line -', index)
-                else: 
+                else:
                     continue
 
                 

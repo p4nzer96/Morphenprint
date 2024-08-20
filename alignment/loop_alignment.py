@@ -67,9 +67,6 @@ def get_best_loop_align(img2, W, angles_img1, rel_img1, img2_center):
         angles_img1: The angles image of the first fingerprint image
         rel_img1: The reliability image of the first fingerprint image
         img2_center: The center of the second fingerprint image
-        start_t: The starting translation value
-        end_t: The ending translation value
-        t_step: The translation step
 
     Returns:
         sim_score_loop_df_final: The similarity score dataframe

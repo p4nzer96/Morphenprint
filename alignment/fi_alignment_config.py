@@ -1,6 +1,6 @@
 from alignment import orientation
 import segmentator
-import tools.data_preprocessing.singularity_extractor as singularity_extractor
+import singularity_extractor as singularity_extractor
 
 
 def get_loop_list_angles_rel_img(img, W):

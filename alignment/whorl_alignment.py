@@ -5,22 +5,9 @@ import traceback
 
 from alignment.similarity import calculate_similarity
 from alignment.orientation import calculate_angles
+from alignment.utils import split_list_into_halves
 from transform import translate, rotate
 
-def split_list_into_halves(input_list):
-    """
-    Split the input list into two halves
-
-    Args:
-        input_list: The input list to be split
-
-    Returns:
-        tuple: The first and the second half of the input list
-    """
-    middle = len(input_list) // 2
-    first_half = input_list[:middle + len(input_list) % 2]
-    second_half = input_list[middle + len(input_list) % 2:]
-    return first_half, second_half
 
 def get_first_second_part_of_loop_list(loop_list, W):
     

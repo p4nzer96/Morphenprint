@@ -13,7 +13,7 @@ import numpy as np
 import cv2 as cv
 
 
-def normalise(img):
+def normalize(img):
     """
     Normalizes the intensity values of the image so that the ridge regions have zero mean, unit standard deviation.
 
@@ -65,7 +65,7 @@ def create_segmented_and_variance_images(im, w, threshold=.2):
 
     # normalize segmented image
     segmented_image *= mask
-    im = normalise(im)
+    im = normalize(im)
     mean_val = np.mean(im[mask == 0])
     std_val = np.std(im[mask == 0])
     norm_img = (im - mean_val) / std_val

@@ -94,13 +94,11 @@ def smooth_angles(angles):
     the directional board.
 
     Attrs:
-        angles (list): List of angles of the fingerprint image.
+        angles (np.array): List of angles of the fingerprint image.
 
     Returns:
         array: Smoothed angles of the fingerprint image.
     """
-
-    angles = np.array(angles)
 
     cos_angles = np.cos(angles.copy() * 2)
     sin_angles = np.sin(angles.copy() * 2)

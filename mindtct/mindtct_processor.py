@@ -112,7 +112,7 @@ def get_minutiae(filename: Path):
 if __name__ == "__main__":
     dictionary = get_minutiae(
         Path(
-            "../../LivDet2021-DS/A_1/LEFT_INDEX.min"
+            "../LivDet2021-DS/A_1/LEFT_INDEX.min"
         )
     )
 

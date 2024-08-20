@@ -5,6 +5,10 @@ from PIL import Image, ImageDraw
 import math
 import traceback
 
+from jupyterlab.utils import deprecated
+
+
+# TODO: To replace with mindtct approach
 
 def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
     """Create minutia map from a list of minitiae by cropping patches around minutiae locations.
@@ -16,9 +20,6 @@ def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
         if minutiae['Quality'] > min_reliability:
             
             x, y, angle = minutiae['X'], minutiae['Y'], minutiae['Angle']  # noqa: F841
-            
-            #x = x + 5.0 * math.cos(angle*math.pi/180.0)
-            #y = y + 5.0 * math.sin(angle*math.pi/180.0)
 
             # Drawing a square around the minutiae
             left = int(x - 0.5 * patch_size + 0.5)
@@ -33,13 +34,26 @@ def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
 
 
 def create_pointingMinutiae(minutiae_list, im_size, square_size, line_length, line_width, min_reliability):
-    """Create minutia map from a list of minutiae by depicting a minutiae as a circle and a connected
-    line pointing to the minutiae direction. Endings are in black and bifurcations are in white. 
+    """
+    Create minutia map from a list of minutiae by depicting a minutiae as a circle and a connected
+    line pointing to the minutiae direction. Endings are in black and bifurcations are in white.
+
+    Args:
+        minutiae_list (list): List of minutiae.
+        im_size (tuple): Size of the image.
+        square_size (int): Size of the square.
+        line_length (int): Length of the line.
+        line_width (int): Width of the line.
+        min_reliability (float): Minimum reliability of the minutiae.
+
+    Returns:
+        numpy.ndarray: Minutiae map.
     """
 
     minutiae_map = np.zeros(im_size, dtype=np.uint8) + 128
 
     for minutiae in minutiae_list:
+
         if minutiae['Quality'] > min_reliability:
 
             x1, y1, angle = minutiae['X'], minutiae['Y'], minutiae['Angle']
@@ -52,6 +66,8 @@ def create_pointingMinutiae(minutiae_list, im_size, square_size, line_length, li
                 color = 255
             elif minutiae['Type'] == 'End':
                 color = 0
+            else:
+                raise ValueError("Unknown minutiae type")
 
             im = Image.fromarray(minutiae_map)
             draw = ImageDraw.Draw(im)

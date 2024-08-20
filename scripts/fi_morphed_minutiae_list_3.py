@@ -7,6 +7,8 @@ import fi_orientation
 import translation
 import rotation
 import subprocess
+
+import alignment.utils
 from alignment import fi_alignment_config
 import fi_alignment.loop_alignment as a_loop
 import fi_alignment.arch_alignment as a_arch
@@ -74,8 +76,8 @@ def save_transformed_images(img1, img2, img1_path, img2_path, root, image_type, 
 
     elif image_type == 'arch':
         # Get center of a fingerprint image
-        img1_blob_center_x, img1_blob_center_y = fi_center.get_center_of_image(img1)
-        img2_blob_center_x, img2_blob_center_y = fi_center.get_center_of_image(img2)
+        img1_blob_center_x, img1_blob_center_y = alignment.utils.get_center_of_image(img1)
+        img2_blob_center_x, img2_blob_center_y = alignment.utils.get_center_of_image(img2)
 
         smooth_angles_img1, angles_img1, rel_img1 = fi_orientation.calculate_angles(img1, block_size, smoth=True)
 

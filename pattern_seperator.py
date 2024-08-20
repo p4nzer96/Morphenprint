@@ -3,7 +3,7 @@ import traceback
 
 import pandas as pd
 import segmentator
-import tools.data_preprocessing.singularity_extractor as singularity_extractor
+import singularity_extractor
 
 from tqdm import tqdm
 from pathlib import Path
@@ -21,14 +21,14 @@ def pattern_separator(input_directory: Path, block_size: int):
 
     type_list = []
     
-    for file in tqdm(input_directory.rglob("*.*")):
+    for file in tqdm(input_directory.rglob("*")):
 
         try:
             if file.suffix in [".png", ".jpg"]:
                 # Getting the full path of the fingerprint image
                 src = file.absolute()
                 
-                img = cv2.imread(src, cv2.IMREAD_GRAYSCALE)
+                img = cv2.imread(str(src), cv2.IMREAD_GRAYSCALE)
 
                 # Computing the angles of the fingerprint image
                 smooth_angles_img, _, _ = orientation.calculate_angles(img, block_size, smooth=True)
@@ -58,7 +58,7 @@ def main():
     input_directory_arg = Path("./LivDet2021-DS/")
     block_size = 16
 
-    pattern_separator(block_size, input_directory_arg)
+    pattern_separator(input_directory_arg, block_size)
     
 if __name__ == "__main__":
     main()

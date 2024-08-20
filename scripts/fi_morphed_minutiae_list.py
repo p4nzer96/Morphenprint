@@ -12,7 +12,7 @@ import alignment.loop_alignment as a_loop
 import alignment.whorl_alignment as a_whorl
 
 from alignment.transform import translate, rotate
-from alignment.centering import get_center_of_image
+from alignment.utils import get_center_of_image
 from alignment.orientation import calculate_angles
 from alignment.fi_alignment_config import get_loop_list_angles_rel_img
 
