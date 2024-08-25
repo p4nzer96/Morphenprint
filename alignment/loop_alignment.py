@@ -99,7 +99,23 @@ def get_best_loop_align(img2, W, angles_img1, rel_img1, img2_center):
     return sim_score_loop_df_final
 
 
-def get_loop_fi_sim_score_df(img2, W, angles_img1, rel_img1, tx_loop, ty_loop, loop_list_img1):
+def get_loop_sim_score_df(img2, W, angles_img1, rel_img1, tx_loop, ty_loop, loop_list_img1):
+
+    """
+    Get the similarity score dataframe for loop alignment
+
+    Args:
+        img2: The second fingerprint image
+        W: The block size
+        angles_img1: The angles image of the first fingerprint image
+        rel_img1: The reliability image of the first fingerprint image
+        tx_loop: The translation in x direction
+        ty_loop: The translation in y direction
+
+    Returns:
+        img2_t_r_t: The aligned fingerprint image
+        sim_score_loop_df_final: The similarity score dataframe
+    """
     
     img2_t_r_t = img2
     sim_score_loop_df_final = pd.DataFrame()

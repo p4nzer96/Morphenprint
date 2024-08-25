@@ -130,7 +130,7 @@ def get_best_whorl_align(img2, W, img2_center, angles_img1, rel_img1):
 
     return sim_score_whorl_df_final
 
-def get_whorl_fi_sim_score_df(W, img2, angles_img1, rel_img1, tx_whorl, ty_whorl, loop_list_img1):
+def get_whorl_sim_score_df(W, img2, angles_img1, rel_img1, tx_whorl, ty_whorl, loop_list_img1):
     """
     Get the similarity score dataframe for whorl alignment
 

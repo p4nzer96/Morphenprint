@@ -13,19 +13,6 @@ import numpy as np
 import cv2 as cv
 
 
-def normalize(img):
-    """
-    Normalizes the intensity values of the image so that the ridge regions have zero mean, unit standard deviation.
-
-    Args:
-        img (numpy.ndarray): Fingerprint image.
-
-    Returns:
-        numpy.ndarray: Normalized image.
-    """
-    return (img - np.mean(img)) / (np.std(img))
-
-
 def create_segmented_and_variance_images(im, w, threshold=.2):
     """
     Returns mask identifying the ROI. Calculates the standard deviation in each image block and threshold the ROI
@@ -65,7 +52,7 @@ def create_segmented_and_variance_images(im, w, threshold=.2):
 
     # normalize segmented image
     segmented_image *= mask
-    im = normalize(im)
+    im = (im - np.mean(im)) / (np.std(im))
     mean_val = np.mean(im[mask == 0])
     std_val = np.std(im[mask == 0])
     norm_img = (im - mean_val) / std_val

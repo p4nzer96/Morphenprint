@@ -34,13 +34,17 @@ def calculate_angles(im, W, smooth=False):
     Gx_ = cv.filter2D(im / 125, -1, ySobel) * 125
     Gy_ = cv.filter2D(im / 125, -1, xSobel) * 125
 
+    # Rounding the gradients
+    Gx = np.round(Gx_)
+    Gy = np.round(Gy_)
+
     # Calculating the orientation and reliability
     # Shifting the window by W
     for j in range(1, y, W):
         for i in range(1, x, W):
             
-            Gx = np.round(Gx_[j: j+W, i: i+W])  # Horizontal gradients at j, i
-            Gy = np.round(Gy_[j: j+W, i: i+W])  # Vertical gradients at j, i
+            #Gx = np.round(Gx_[j: j+W, i: i+W])  # Horizontal gradients at j, i
+            #Gy = np.round(Gy_[j: j+W, i: i+W])  # Vertical gradients at j, i
 
             nominator = np.sum(2 * Gx * Gy)
             denominator = np.sum(Gx ** 2 - Gy ** 2)
@@ -51,7 +55,6 @@ def calculate_angles(im, W, smooth=False):
             rel_den_2 = np.array(np.sum(Gy ** 2)).astype(np.float64)
 
             if nominator or denominator:
-                #angle = (math.pi + math.atan2(nominator, denominator)) / 2
                 reliability = (np.sqrt(rel_nom_1 ** 2 + 4 * (rel_nom_2 ** 2))) / (rel_den_1 + rel_den_2 + 1e-12)
                 orientation = math.pi / 2 + math.atan2(nominator, denominator) / 2
                 ang_result[int((j - 1) // W)].append(orientation)
@@ -152,8 +155,3 @@ def visualize_angles(im, mask, angles, W):
 if __name__ == "__main__":
     img = cv.imread("../LivDet2021-DS/A_1/LEFT_INDEX.jpg", cv.IMREAD_GRAYSCALE)
     smooth_angles, angles, reliability = calculate_angles(img, 16, smooth=True)
-    mask = np.ones(img.shape)
-    result = visualize_angles(img, mask, angles, 16)
-    plt.imshow(reliability)
-    plt.show()
-    print(smooth_angles, angles, reliability)

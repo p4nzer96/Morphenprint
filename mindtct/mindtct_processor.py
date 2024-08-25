@@ -2,6 +2,8 @@ import re
 import numpy as np
 from pathlib import Path
 
+import pandas as pd
+
 
 def get_direction_map(filename: Path):
     """
@@ -18,7 +20,7 @@ def get_direction_map(filename: Path):
     with open(filename, "r") as f:
         lines = f.readlines()
         parsed_lines = []
-        # Parsing
+        # Parsing the dm file
         for line in lines[:-1]:
             parsed_lines.append(
                 [int(x) for x in line.split(" ") if x.lstrip("-").isdigit()]
@@ -43,7 +45,7 @@ def get_high_curvature_map(filename: Path):
     with open(filename, "r") as f:
         lines = f.readlines()
         parsed_lines = []
-        # Parsing
+        # 
         for line in lines[:-1]:
             parsed_lines.append(
                 [int(x) for x in line.split(" ") if x.lstrip("-").isdigit()]
@@ -83,7 +85,7 @@ def get_minutiae(filename: Path):
         filename (Path): Path to the ".min" file.
 
     Returns:
-        dict: Dictionary containing the parsed minutiae data.
+        dataframe: DataFrame containing the parsed minutiae data.
     """
     if filename.suffix != ".min":
         return
@@ -106,13 +108,13 @@ def get_minutiae(filename: Path):
                 min_dict[split[0]][f"nx{x-6}"] = nx
                 min_dict[split[0]][f"ny{x-6}"] = ny
                 min_dict[split[0]][f"rc{x-6}"] = rc
-    return min_dict
+    return pd.DataFrame(min_dict).T
 
 
 if __name__ == "__main__":
     dictionary = get_minutiae(
         Path(
-            "../LivDet2021-DS/A_1/LEFT_INDEX.min"
+            "./LivDet-2021-Dataset/Dermalog_Consensual/30_26_0/Fake_Mold/GLS_1/mindtct_LEFT_INDEX/LEFT_INDEX.min"
         )
     )
 

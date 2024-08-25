@@ -5,13 +5,10 @@ from PIL import Image, ImageDraw
 import math
 import traceback
 
-from jupyterlab.utils import deprecated
-
-
 # TODO: To replace with mindtct approach
 
 def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
-    """Create minutia map from a list of minitiae by cropping patches around minutiae locations.
+    """Create minutia map from a list of minutiae by cropping patches around minutiae locations.
     """
 
     minutiae_map = np.zeros(bw_image.shape, dtype=np.uint8) + 255
@@ -26,7 +23,6 @@ def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
             right = int(x + 0.5 * patch_size + 0.5)
             top = int(y - 0.5 * patch_size + 0.5)
             bottom = int(y + 0.5 * patch_size + 0.5)
-            #foo = minutiae_map[top:bottom, left:right]
 
             minutiae_map[top:bottom, left:right] = bw_image[top:bottom, left:right]
 

@@ -51,7 +51,7 @@ def get_best_arch_align(img2, W, angles_img1, rel_img1):
     return sim_score_arch_df
 
 
-def get_arch_fi_sim_score_df(img2, W, angles_img1, rel_img1, tx_arch, ty_arch):
+def get_arch_sim_score_df(img2, W, angles_img1, rel_img1, tx_arch, ty_arch):
     """
     Get the similarity score dataframe for arch alignment
 
