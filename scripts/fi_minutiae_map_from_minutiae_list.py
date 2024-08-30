@@ -7,8 +7,18 @@ import traceback
 
 # TODO: To replace with mindtct approach
 
-def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
-    """Create minutia map from a list of minutiae by cropping patches around minutiae locations.
+'''def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
+    """
+    Create minutia map from a list of minutiae by cropping patches around minutiae locations.
+
+    Args:
+        minutiae_list (list): List of minutiae.
+        bw_image (numpy.ndarray): Binary image.
+        patch_size (int): Size of the patch.
+        min_reliability (float): Minimum reliability of the minutiae.
+
+    Returns:
+        numpy.ndarray: Minutiae map.
     """
 
     minutiae_map = np.zeros(bw_image.shape, dtype=np.uint8) + 255
@@ -27,7 +37,7 @@ def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
             minutiae_map[top:bottom, left:right] = bw_image[top:bottom, left:right]
 
     return minutiae_map
-
+'''
 
 def create_pointingMinutiae(minutiae_list, im_size, square_size, line_length, line_width, min_reliability):
     """

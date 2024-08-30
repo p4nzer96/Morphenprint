@@ -28,8 +28,8 @@ def get_filtered_minutae_list(minutiae_file_path, mask):
     minutiae_count = 0
     minutiae_filtered = []
     for index, row in min_dataframe.iterrows():
-        x = int(row["X"])
-        y = int(row["Y"])
+        x = int(row["x_coord"])
+        y = int(row["y_coord"])
 
         if mask[y][x] is False:
             minutiae_count += 1

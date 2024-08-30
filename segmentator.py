@@ -12,7 +12,6 @@ optimize the extraction phase of the biometric data.
 import numpy as np
 import cv2 as cv
 
-
 def create_segmented_and_variance_images(im, w, threshold=.2):
     """
     Returns mask identifying the ROI. Calculates the standard deviation in each image block and threshold the ROI
@@ -44,6 +43,7 @@ def create_segmented_and_variance_images(im, w, threshold=.2):
 
     # apply a threshold
     mask[image_variance < threshold] = 0
+    #mask[image_variance < threshold] = 0
 
     # smooth mask with an open/close morphological filter
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (w * 2, w * 2))

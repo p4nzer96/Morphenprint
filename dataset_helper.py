@@ -49,6 +49,10 @@ def create_dataset_structure(root_folder: Path, output_folder: Path):
                     output_image_path = target_file_path.with_suffix(".jpg")
                     if not output_image_path.exists():
                         image = Image.open(file_path).convert("L")
+                        # get image size
+                        width, height = image.size
+                        assert width == height
+                        image = image.resize((512, 512))
                         image.save(output_image_path)
                 else:
                     # Skip non-image files

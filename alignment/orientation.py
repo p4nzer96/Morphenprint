@@ -1,6 +1,5 @@
 import math
 
-import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
 
@@ -34,17 +33,13 @@ def calculate_angles(im, W, smooth=False):
     Gx_ = cv.filter2D(im / 125, -1, ySobel) * 125
     Gy_ = cv.filter2D(im / 125, -1, xSobel) * 125
 
-    # Rounding the gradients
-    Gx = np.round(Gx_)
-    Gy = np.round(Gy_)
-
     # Calculating the orientation and reliability
     # Shifting the window by W
     for j in range(1, y, W):
         for i in range(1, x, W):
             
-            #Gx = np.round(Gx_[j: j+W, i: i+W])  # Horizontal gradients at j, i
-            #Gy = np.round(Gy_[j: j+W, i: i+W])  # Vertical gradients at j, i
+            Gx = np.round(Gx_[j: j+W, i: i+W])  # Horizontal gradients at j, i
+            Gy = np.round(Gy_[j: j+W, i: i+W])  # Vertical gradients at j, i
 
             nominator = np.sum(2 * Gx * Gy)
             denominator = np.sum(Gx ** 2 - Gy ** 2)

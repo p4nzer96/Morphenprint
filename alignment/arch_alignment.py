@@ -3,14 +3,15 @@ import traceback
 import numpy as np
 import pandas as pd
 
-from transform import rotate, translate
+from alignment.transform import rotate, translate
 from alignment.orientation import calculate_angles
 from alignment.similarity import calculate_similarity
+
 
 def get_best_arch_align(img2, W, angles_img1, rel_img1):
     """
     Get the best arch fingerprint alignment configuration
-    Args: 
+    Args:
         img2: The second fingerprint image
         W: The block size
         angles_img1: The angles image of the first fingerprint image
@@ -36,15 +37,30 @@ def get_best_arch_align(img2, W, angles_img1, rel_img1):
                 # Rotate the image
                 img2_t_r = rotate(img2_t, angle, img2_center)
                 # Calculate the angles and reliability of the rotated image
-                _, angles_img2_t_r, rel_img2_t_r = calculate_angles(img2_t_r, W, smooth=True)
+                _, angles_img2_t_r, rel_img2_t_r = calculate_angles(
+                    img2_t_r, W, smooth=True
+                )
                 # Calculate the similarity score
-                similarity_score = calculate_similarity(angles_img1, angles_img2_t_r, rel_img1, rel_img2_t_r)
+                similarity_score = calculate_similarity(
+                    angles_img1, angles_img2_t_r, rel_img1, rel_img2_t_r
+                )
                 # Append the similarity score to the dataframe
-                sim_score_arch_df = sim_score_arch_df.append({'rotation_angle': angle,
-                                                              'tx': value,
-                                                              'ty': value,
-                                                              'similarity_score': similarity_score},
-                                                             ignore_index=True)
+                sim_score_arch_df = pd.concat(
+                    [
+                        sim_score_arch_df,
+                        pd.DataFrame(
+                            [
+                                {
+                                    "rotation_angle": angle,
+                                    "tx": value,
+                                    "ty": value,
+                                    "similarity_score": similarity_score,
+                                }
+                            ]
+                        ),
+                    ],
+                    ignore_index=True,
+                )
             except Exception:
                 continue
 
@@ -74,9 +90,9 @@ def get_arch_sim_score_df(img2, W, angles_img1, rel_img1, tx_arch, ty_arch):
 
         # Get the best alignment configuration
         sim_score_arch_df = get_best_arch_align(img2_t, W, angles_img1, rel_img1)
-    
+
     except Exception as e:
-        print('Error in arch alignment -' + str(e))
+        print("Error in arch alignment -" + str(e))
         traceback.print_exc()
 
     return img2_t, sim_score_arch_df

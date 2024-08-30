@@ -167,5 +167,4 @@ cython_debug/
 **/.vscode/
 **/livdet2021test/
 **/LivDet-2021-Dataset/
-**/test/
-**/patterns/
+**/aligned_images/

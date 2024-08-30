@@ -9,7 +9,6 @@ from pathlib import Path
 from alignment import orientation
 
 
-
 def pattern_separator(input_directory: Path, output_file: Path, W: int):
     """
     This function separates the fingerprint images into loop, whorl and arch types
@@ -17,6 +16,7 @@ def pattern_separator(input_directory: Path, output_file: Path, W: int):
     Args:
         input_directory (Path): The directory containing the fingerprint images
         W (int): The block size used for the orientation field calculation
+        output_file (Path): The output file where the results will be saved
     """
     type_list = []
     
