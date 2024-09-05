@@ -76,19 +76,28 @@ def get_low_contrast_map(filename: Path):
         return np.array(parsed_lines)
 
 
-def get_minutiae(filename: Path):
+def get_minutiae(filename: Path, cache: bool = True):
     """
     Parsing of mindtct ".min" (minutiae) file type.
     Source: https://ffpis.sourceforge.net/man/mindtct.html
 
     Attributes:
         filename (Path): Path to the ".min" file.
+        cache (bool): Whether to cache the parsed minutiae data (saves the parsed data as file).
 
     Returns:
         dataframe: DataFrame containing the parsed minutiae data.
     """
     if filename.suffix != ".min":
         return
+    
+    if cache and (filename.parent / f"{filename.stem}.pkl").exists():
+        cache_filename = filename.parent / f"{filename.stem}.pkl"
+        try:
+            return pd.read_pickle(cache_filename)
+        except FileNotFoundError:
+            print("Trying to read from cache, but file not found.")
+
     min_dict = {}
     with open(filename, "r") as f:
         lines = f.readlines()
@@ -108,14 +117,6 @@ def get_minutiae(filename: Path):
                 min_dict[split[0]][f"nx{x-6}"] = nx
                 min_dict[split[0]][f"ny{x-6}"] = ny
                 min_dict[split[0]][f"rc{x-6}"] = rc
+    if cache:
+        pd.DataFrame(min_dict).T.to_pickle(filename.parent / f"{filename.stem}.pkl")
     return pd.DataFrame(min_dict).T
-
-
-if __name__ == "__main__":
-    dictionary = get_minutiae(
-        Path(
-            "./LivDet-2021-Dataset/Dermalog_Consensual/30_26_0/Fake_Mold/GLS_1/mindtct_LEFT_INDEX/LEFT_INDEX.min"
-        )
-    )
-
-    print(dictionary)

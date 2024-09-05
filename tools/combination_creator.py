@@ -76,6 +76,6 @@ def make_combinations(dataset_info):
 if __name__ == "__main__":
     dataset_info = Path("./final_dataset_info.csv")
 
-    fp_list = open("../path_morph_right_tented_arch.txt", "r").read().split('\n')
+    fp_list = open("./path_morph_right_tented_arch.txt", "r").read().split('\n')
 
     make_combinations_manual(fp_list=fp_list, pattern="arch")

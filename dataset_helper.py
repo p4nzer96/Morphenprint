@@ -62,7 +62,7 @@ def create_dataset_structure(root_folder: Path, output_folder: Path):
                 continue
 
 
-def main():
+def create_base_dataset():
 
     # Define the worker functions to process the dataset subfolders
 
@@ -98,7 +98,7 @@ def main():
             W=16,
         )
 
-    in_folder_name = "./livdet2021test"
+    in_folder_name = "./livdet-2021-test"
     out_folder_name = "./LivDet-2021-Dataset"
 
     create_dataset_structure(
@@ -172,17 +172,17 @@ def parse_main():
                         pattern,
                     ]
                 )
-                columns = [
-                    "Path",
-                    "Sensor",
-                    "Acq_Type",
-                    "User",
-                    "Liveness",
-                    "Material",
-                    "Acq_Number",
-                    "Finger",
-                    "Pattern",
-                ]
+            columns = [
+                "Path",
+                "Sensor",
+                "Acq_Type",
+                "User",
+                "Liveness",
+                "Material",
+                "Acq_Number",
+                "Finger",
+                "Pattern",
+            ]
             dataframe_dict[folder.name] = pd.DataFrame(rows, columns=columns)
 
         final_dataframe = pd.concat(dataframe_dict.values(), ignore_index=True)
@@ -190,5 +190,5 @@ def parse_main():
 
 
 if __name__ == "__main__":
-    #main()
+    main()
     parse_main()

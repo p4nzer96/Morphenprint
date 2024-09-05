@@ -15,8 +15,12 @@ def _mindtct_runner(file):
         print(f"Exception {e} while processing: {output_folder}")
         return
 
-def mindtct_runner(data_folder: Path, multiprocess: bool = True):
-    files = [x.absolute() for x in data_folder.rglob("*.jpg")]
+
+def mindtct_runner(img_path, multiprocess: bool = True):
+    if isinstance(img_path, Path):
+        files = [x.absolute() for x in img_path.rglob("*.jpg")]
+    else:
+        files = img_path
     if multiprocess:
         pool = multiprocessing.Pool(processes = multiprocessing.cpu_count())
         pool.map(_mindtct_runner, files)

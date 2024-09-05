@@ -3,6 +3,8 @@ import math
 import numpy as np
 import cv2 as cv
 
+
+
 def calculate_angles(im, W, smooth=False):
     """
     Anisotropy orientation estimate, based on equations 5 from:

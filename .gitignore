@@ -165,6 +165,6 @@ cython_debug/
 
 **/.idea/
 **/.vscode/
-**/livdet2021test/
+**/livdet-2021-test/
 **/LivDet-2021-Dataset/
 **/aligned_images/

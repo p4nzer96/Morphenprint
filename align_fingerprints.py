@@ -84,15 +84,15 @@ def align_images_mp(combinations, W, overlapped_path):
         combinations = pd.read_csv(combinations)
 
     # Creating a pool of workers
-    pool = mp.Pool(mp.cpu_count())
+    pool = mp.Pool(processes=mp.cpu_count())
     pool.starmap(align_single_image, [(row, i, W, overlapped_path) for i, row in combinations.iterrows()])
 
 def align_single_image(row, idx, W, overlapped_path):
     try: 
         print(f"Processing {idx}...")
         
-        img1_path = row["Image1"]
-        img2_path = row["Image2"]
+        img1_path = Path(row["Image1"]).resolve()
+        img2_path = Path(row["Image2"]).resolve()
         img_type = row["Type"]
 
         # Read the images
@@ -185,24 +185,33 @@ def align_single_image(row, idx, W, overlapped_path):
         if not overlapped_path_idx.exists():
             overlapped_path_idx.mkdir()
 
+        params = [int(cv2.IMWRITE_JPEG_QUALITY), 100]
 
         # Save the overlapped image
         overlapped_img = cv2.addWeighted(img1, 0.5, img2_t_r, 0.5, 0.0)
-        cv2.imwrite(overlapped_path_idx / f"overlapped_{idx}.png", overlapped_img)
+        cv2.imwrite(overlapped_path_idx / f"overlapped_{idx}.jpg", overlapped_img)
+
+        cv2.imwrite(overlapped_path_idx / f"aligned_{idx}_1.jpg", img1)
+        cv2.imwrite(overlapped_path_idx / f"aligned_{idx}_2.jpg", img2_t_r)
 
         img1_transformed_cropped = get_overlapped_image(img2_t_r, img1)
         img2_transformed_cropped = get_overlapped_image(img1, img2_t_r)
 
-        img1_save_path = overlapped_path_idx / f"cropped_{idx}_1.png"
-        img2_save_path = overlapped_path_idx / f"cropped_{idx}_2.png"
+        img1_transformed_cropped = cv2.cvtColor(img1_transformed_cropped, cv2.COLOR_BGR2GRAY)
+        img2_transformed_cropped = cv2.cvtColor(img2_transformed_cropped, cv2.COLOR_BGR2GRAY)
 
-        img_1_save_path_or = overlapped_path_idx / f"original_{idx}_1.png"
-        img_2_save_path_or = overlapped_path_idx / f"original_{idx}_2.png"
+        #print(img1_transformed_cropped.shape, img2_transformed_cropped.shape)
 
-        cv2.imwrite(img_1_save_path_or, img1)
-        cv2.imwrite(img_2_save_path_or, img2)
-        cv2.imwrite(img1_save_path, img1_transformed_cropped)
-        cv2.imwrite(img2_save_path, img2_transformed_cropped)
+        img1_save_path = overlapped_path_idx / f"cropped_{idx}_1.jpg"
+        img2_save_path = overlapped_path_idx / f"cropped_{idx}_2.jpg"
+
+        img_1_save_path_or = overlapped_path_idx / f"original_{idx}_1.jpg"
+        img_2_save_path_or = overlapped_path_idx / f"original_{idx}_2.jpg"
+
+        cv2.imwrite(img_1_save_path_or, img1, params)
+        cv2.imwrite(img_2_save_path_or, img2, params)
+        cv2.imwrite(img1_save_path, img1_transformed_cropped, params)
+        cv2.imwrite(img2_save_path, img2_transformed_cropped, params)
     
     except Exception as e:
         print(f"Error processing {idx}: {e}")
@@ -231,7 +240,7 @@ if __name__ == "__main__":
 
     # Parallelizing with multiprocessing
 
-    combinations = pd.read_csv("./tools/combinations_arch.csv")
+    combinations = pd.read_csv("./combinations_arch.csv")
     W = 16
     overlapped_path = Path("./aligned_images")
 
