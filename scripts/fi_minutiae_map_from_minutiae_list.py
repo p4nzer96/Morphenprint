@@ -1,3 +1,4 @@
+from pathlib import Path
 import sys
 import numpy as np
 import os
@@ -5,39 +6,9 @@ from PIL import Image, ImageDraw
 import math
 import traceback
 
+import pandas as pd
+
 # TODO: To replace with mindtct approach
-
-'''def create_Patches(minutiae_list, bw_image, patch_size, min_reliability):
-    """
-    Create minutia map from a list of minutiae by cropping patches around minutiae locations.
-
-    Args:
-        minutiae_list (list): List of minutiae.
-        bw_image (numpy.ndarray): Binary image.
-        patch_size (int): Size of the patch.
-        min_reliability (float): Minimum reliability of the minutiae.
-
-    Returns:
-        numpy.ndarray: Minutiae map.
-    """
-
-    minutiae_map = np.zeros(bw_image.shape, dtype=np.uint8) + 255
-
-    for minutiae in minutiae_list:
-        if minutiae['Quality'] > min_reliability:
-            
-            x, y, angle = minutiae['X'], minutiae['Y'], minutiae['Angle']  # noqa: F841
-
-            # Drawing a square around the minutiae
-            left = int(x - 0.5 * patch_size + 0.5)
-            right = int(x + 0.5 * patch_size + 0.5)
-            top = int(y - 0.5 * patch_size + 0.5)
-            bottom = int(y + 0.5 * patch_size + 0.5)
-
-            minutiae_map[top:bottom, left:right] = bw_image[top:bottom, left:right]
-
-    return minutiae_map
-'''
 
 def create_pointingMinutiae(minutiae_list, im_size, square_size, line_length, line_width, min_reliability):
     """
@@ -68,9 +39,9 @@ def create_pointingMinutiae(minutiae_list, im_size, square_size, line_length, li
             y2 = y1 + float(line_length) * math.sin(angle * math.pi / 180.0)
             
             # Set color based on minutiae type
-            if minutiae['Type'] == 'Bifurcation':
+            if minutiae['Type'] == 'BIF':
                 color = 255
-            elif minutiae['Type'] == 'End':
+            elif minutiae['Type'] == 'RIG':
                 color = 0
             else:
                 raise ValueError("Unknown minutiae type")
@@ -120,9 +91,9 @@ def create_directedMinutiae(minutiae_list, im_size, line_length, line_width, min
             y2 = y1 + float(line_length) * math.sin(angle * math.pi / 180.0)
 
             # Set color based on minutiae type
-            if minutiae['Type'] == 'Bifurcation':
+            if minutiae['Type'] == 'BIF':
                 color = 255
-            elif minutiae['Type'] == 'End':
+            elif minutiae['Type'] == 'RIG':
                 color = 0
 
             im = Image.fromarray(minutiae_map)
@@ -158,7 +129,7 @@ def create_graySquare(minutiae_list, im_size, square_size, min_reliability):
             theta_color = int(minutiae['Angle'] / 360.0 * 128.0 + 0.5)
             
             # Set color based on minutiae type
-            if minutiae['Type'] == 'Bifurcation':
+            if minutiae['Type'] == 'BIF':
                 theta_color = theta_color + 128
 
             x, y = minutiae['X'], minutiae['Y']
@@ -191,8 +162,54 @@ def create_monoSquare(minutiae_list, im_size, square_size, min_reliability):
 
     return minutiae_map
 
-
 def create_minutiaeMap(morphed_minutiae_path, minutiae_map_dir, minutiae_map_save_name, scale=1,
+                          method='pointingMinutiae', size=(512, 512)):
+
+    selected_minutiae_df = pd.read_pickle(morphed_minutiae_path)
+    
+    minutiae_list = []
+    
+    for _, row in selected_minutiae_df.iterrows():
+
+        minutiae = {
+            'X': row['x_coord'] * scale,
+            'Y': row['y_coord'] * scale,
+            'Type': row['type'],
+            'Angle': row['direction'],
+            'Quality': row['reliability']
+        }
+
+        minutiae_list.append(minutiae)
+
+    minutiae_quality_thr = 0.2
+
+    if method == 'monoSquare':
+        minutiae_map = create_monoSquare(minutiae_list, size, int(12.0 * scale + 0.5), minutiae_quality_thr)
+
+    elif method == 'graySquare':
+        minutiae_map = create_graySquare(minutiae_list, size, int(12.0 * scale + 0.5), minutiae_quality_thr)
+
+    elif method == 'pointingMinutiae':
+        minutiae_map = create_pointingMinutiae(minutiae_list, size, int(6.0 * scale + 0.5), int(14.0 * scale + 0.5),
+                                               int(3.0 * scale + 0.5), minutiae_quality_thr)
+
+    elif method == 'directedMinutiae':
+        minutiae_map = create_directedMinutiae(minutiae_list, size, int(14.0 * scale + 0.5), int(3.0 * scale + 0.5),
+                                               minutiae_quality_thr)
+
+    minutiae_map = Image.fromarray(minutiae_map)
+
+    # form image for pix2pix
+    double_image = Image.new("L", (size[0], size[1]))
+    double_image.paste(minutiae_map, (0, 0))
+    
+
+    double_image.save(minutiae_map_dir / minutiae_map_save_name)
+
+    
+
+
+def create_minutiaeMap_bak(morphed_minutiae_path, minutiae_map_dir, minutiae_map_save_name, scale=1,
                        method='pointingMinutiae', size=(512, 512)):
     """
     Create minutia map from a list of minutiae by depicting minutiae as black squares on a white background.
@@ -260,7 +277,36 @@ def create_minutiaeMap(morphed_minutiae_path, minutiae_map_dir, minutiae_map_sav
     double_image.save(minutiae_map_dir + '/' + minutiae_map_save_name)
 
 
-def main():
+def createMaps():
+
+    aligned_path = Path("./aligned_images")
+    scale = 1.0
+    size = (512, 512)
+    method = 'pointingMinutiae'
+
+    selected_minutiae_paths = [x.resolve() for x in aligned_path.rglob("*.pkl") if "selected" in str(x)]
+
+    minutiae_map_folder = Path("./minutiae_maps")
+
+    minutiae_map_folder.mkdir(exist_ok=True, parents=True)
+
+    if method == 'pointingMinutiae':
+        end_path_str = '_pm_mmap.png'
+    elif method == 'directedMinutiae':
+        end_path_str = '_dm_mmap.png'
+
+    for minutiae_path in selected_minutiae_paths:
+
+        print(f"Creating minutiae map for {minutiae_path}")
+
+        minutiae_map_save_name = f"mmap_{minutiae_path.parent.stem}_{end_path_str}"
+
+        create_minutiaeMap(minutiae_path, minutiae_map_folder, minutiae_map_save_name, scale, method, size)
+
+
+
+"""
+def main2():
     # parse command line parameters
     directory_path = sys.argv[1]
     method = sys.argv[2]
@@ -301,8 +347,8 @@ def main():
 
     except Exception as e:
         print('Error -' + str(e))
-        traceback.print_exc()
+        traceback.print_exc()"""
 
 
 if __name__ == '__main__':
-    main()
+    createMaps()

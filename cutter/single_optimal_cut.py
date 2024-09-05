@@ -1,4 +1,5 @@
 import cProfile
+import pickle
 import cv2
 import numpy as np
 import pandas as pd
@@ -93,7 +94,7 @@ def get_cropped_images(img1, img2, mask, pts):
 def get_minutiae_df(
     img1_cropped, img2_cropped, img1_cropped_minutiae_path, img2_cropped_minutiae_path
 ):
-    minutiae_df = pd.DataFrame()
+    minutiae_df = pd.DataFrame(dtype=object)
 
     # Horizontal cutline
 
@@ -141,8 +142,8 @@ def get_minutiae_df(
                                 {
                                     "img1_minutiae_count": minutiae_count_img1_1,
                                     "img2_minutiae_count": minutiae_count_img2_2,
-                                    "img1_minutiae_list_filtered": minutiae_list_filtered_img1_1,
-                                    "img2_minutiae_list_filtered": minutiae_list_filtered_img2_2,
+                                    "img1_minutiae_list_filtered": tuple(minutiae_list_filtered_img1_1),
+                                    "img2_minutiae_list_filtered": tuple(minutiae_list_filtered_img2_2),
                                 }
                             ]
                         ),
@@ -169,8 +170,8 @@ def get_minutiae_df(
                                 {
                                     "img1_minutiae_count": minutiae_count_img1_2,
                                     "img2_minutiae_count": minutiae_count_img2_1,
-                                    "img1_minutiae_list_filtered": minutiae_list_filtered_img1_2,
-                                    "img2_minutiae_list_filtered": minutiae_list_filtered_img2_1,
+                                    "img1_minutiae_list_filtered": tuple(minutiae_list_filtered_img1_2),
+                                    "img2_minutiae_list_filtered": tuple(minutiae_list_filtered_img2_1),
                                 }
                             ]
                         ),
@@ -215,13 +216,13 @@ def get_minutiae_df(
                 img1_1, img2_2, img1_cropped_minutiae_path, img2_cropped_minutiae_path
             )
             if minutiae_count_img1_1 != 0 and minutiae_count_img2_2 != 0:
-                minutiae_df = minutiae_df.append(
+                minutiae_df = pd.concat([minutiae_df, pd.DataFrame([
                     {
                         "img1_minutiae_count": minutiae_count_img1_1,
                         "img2_minutiae_count": minutiae_count_img2_2,
-                        "img1_minutiae_list_filtered": minutiae_list_filtered_img1_1,
-                        "img2_minutiae_list_filtered": minutiae_list_filtered_img2_2,
-                    },
+                        "img1_minutiae_list_filtered": tuple(minutiae_list_filtered_img1_1),
+                        "img2_minutiae_list_filtered": tuple(minutiae_list_filtered_img2_2),
+                    }])],
                     ignore_index=True,
                 )
 
@@ -236,13 +237,13 @@ def get_minutiae_df(
                 img1_2, img2_1, img1_cropped_minutiae_path, img2_cropped_minutiae_path
             )
             if minutiae_count_img1_2 != 0 and minutiae_count_img2_1 != 0:
-                minutiae_df = minutiae_df.append(
+                minutiae_df = pd.concat([minutiae_df, pd.DataFrame([
                     {
                         "img1_minutiae_count": minutiae_count_img1_2,
                         "img2_minutiae_count": minutiae_count_img2_1,
-                        "img1_minutiae_list_filtered": minutiae_list_filtered_img1_2,
-                        "img2_minutiae_list_filtered": minutiae_list_filtered_img2_1,
-                    },
+                        "img1_minutiae_list_filtered": tuple(minutiae_list_filtered_img1_2),
+                        "img2_minutiae_list_filtered": tuple(minutiae_list_filtered_img2_1),
+                    }])],
                     ignore_index=True,
                 )
 
@@ -316,8 +317,33 @@ def make_single_optimal_cut(
         "img2_minutiae_list_filtered"
     ].iloc[0]
 
-    print("Processing", img_1_path.stem)
+    print(f"Processing {img_1_path.stem[:-2].split('_')[1]}")
 
+    # Processing strings
+    img1_minutiae_list_filtered = [int(x) for x in img1_minutiae_list_filtered]
+    img2_minutiae_list_filtered = [int(x) for x in img2_minutiae_list_filtered]
+
+    # Getting the miunutiae_files 
+
+    minutiae_1 = get_minutiae(img_1_minutiae_path)
+    minutiae_2 = get_minutiae(img_2_minutiae_path)
+
+    # Filtering
+
+    minutiae_1_filtered = minutiae_1.iloc[img1_minutiae_list_filtered]
+    minutiae_1_filtered.insert(0, "finger", 1)
+    minutiae_2_filtered = minutiae_2.iloc[img2_minutiae_list_filtered]
+    minutiae_2_filtered.insert(0, "finger", 2)
+
+    minutiae_filtered = pd.concat([minutiae_1_filtered, minutiae_2_filtered])
+
+    # Saving the minutiae
+
+    minutiae_save_path = (
+        img_1_path.parent / f"selected_min_{img_1_path.parent.name}.pkl"
+    )
+
+    minutiae_filtered.to_pickle(minutiae_save_path)
 
 def make_multiple_optimal_cuts(cropped_path, multiprocessing=True):
     img_1_path = []
@@ -360,164 +386,6 @@ def make_multiple_optimal_cuts(cropped_path, multiprocessing=True):
 def main():
 
     make_multiple_optimal_cuts(Path("./aligned_images"), multiprocessing=True)
-
-
-def main2():
-    # parse command line parameters
-    directory_path = sys.argv[1]
-    data_txt_path = sys.argv[2]
-    folder_count = 0
-    try:
-        for root, _, files in os.walk(directory_path):
-            img1_cropped_path = ""
-            img2_cropped_path = ""
-            img1_minutiae_path = ""
-            img2_minutiae_path = ""
-            img_count = 0
-            img1_minutiae_count = 0
-            img2_minutiae_count = 0
-            for file in files:
-                # consider only cropped images
-                if file.lower().endswith("_cropped.png"):
-                    img_count += 1
-                    if img_count == 1:
-                        img1_cropped_path = os.path.join(root, file)
-                    if img_count == 2:
-                        img2_cropped_path = os.path.join(root, file)
-
-            if (
-                img1_cropped_path
-                and img2_cropped_path
-                and img1_minutiae_path
-                and img2_minutiae_path
-            ):
-                if (
-                    os.path.getsize(img1_minutiae_path) == 0
-                    or os.path.getsize(img2_minutiae_path) == 0
-                ):
-                    with open(data_txt_path, "a") as file:
-                        file.write(
-                            "\n"
-                            + "Image Sets - "
-                            + str(os.path.basename(root))
-                            + ","
-                            + str(os.path.basename(img1_cropped_path))
-                            + ","
-                            + str(os.path.basename(img2_cropped_path))
-                        )
-                    continue
-
-                img1_cropped = cv2.imread(img1_cropped_path, cv2.IMREAD_GRAYSCALE)
-                img2_cropped = cv2.imread(img2_cropped_path, cv2.IMREAD_GRAYSCALE)
-
-                if str(os.path.splitext(os.path.basename(img1_cropped_path))[0]) in str(
-                    os.path.basename(img1_minutiae_path)
-                ) and str(
-                    os.path.splitext(os.path.basename(img2_cropped_path))[0]
-                ) in str(os.path.basename(img2_minutiae_path)):
-                    img1_m_p = img1_minutiae_path
-                    img2_m_p = img2_minutiae_path
-                else:
-                    img1_m_p = img2_minutiae_path
-                    img2_m_p = img1_minutiae_path
-
-                minutiae_df_final = get_minutiae_df(
-                    img1_cropped, img2_cropped, img1_m_p, img2_m_p
-                )
-
-                try:
-                    minutiae_df_final_filtered = minutiae_df_final.drop_duplicates(
-                        keep="first"
-                    )
-                except Exception:
-                    minutiae_df_final_filtered = minutiae_df_final
-
-                minutiae_df_final_filtered["mul_value"] = (
-                    minutiae_df_final_filtered["img1_minutiae_count"]
-                    * minutiae_df_final_filtered["img2_minutiae_count"]
-                )
-                minutiae_df_final_filtered = minutiae_df_final_filtered.sort_values(
-                    by="mul_value", ascending=False
-                )
-
-                for _, row in minutiae_df_final_filtered.iterrows():
-                    img1_minutiae_count = row["img1_minutiae_count"]
-                    img2_minutiae_count = row["img2_minutiae_count"]
-
-                    if img1_minutiae_count > 12 and img2_minutiae_count > 12:
-                        break
-                    else:
-                        img1_minutiae_count = 0
-                        img2_minutiae_count = 0
-                        continue
-
-                if img1_minutiae_count == 0 and img2_minutiae_count == 0:
-                    img1_minutiae_count = minutiae_df_final_filtered.iloc[0][
-                        "img1_minutiae_count"
-                    ]
-                    img2_minutiae_count = minutiae_df_final_filtered.iloc[0][
-                        "img2_minutiae_count"
-                    ]
-
-                selected_minutiae_df = minutiae_df_final_filtered[
-                    (
-                        minutiae_df_final_filtered["img1_minutiae_count"]
-                        == img1_minutiae_count
-                    )
-                    & (
-                        minutiae_df_final_filtered["img2_minutiae_count"]
-                        == img2_minutiae_count
-                    )
-                ]
-                img1_minutiae_list_filtered = selected_minutiae_df[
-                    "img1_minutiae_list_filtered"
-                ].iloc[0]
-                img2_minutiae_list_filtered = selected_minutiae_df[
-                    "img2_minutiae_list_filtered"
-                ].iloc[0]
-
-                img1_minutiae_list_filtered = img1_minutiae_list_filtered.split("\n")
-                img2_minutiae_list_filtered = img2_minutiae_list_filtered.split("\n")
-
-                morphed_minutiae_save_path = (
-                    root
-                    + "/"
-                    + str(os.path.splitext(os.path.basename(img1_cropped_path))[0])
-                    + "_"
-                    + str(os.path.splitext(os.path.basename(img2_cropped_path))[0])
-                    + "_mm.txt"
-                )
-
-                with open(morphed_minutiae_save_path, "w") as file:
-                    for line in img1_minutiae_list_filtered:
-                        try:
-                            if line.strip():
-                                file.write(f"{line}\n")
-                        except Exception:
-                            continue
-
-                    for line in img2_minutiae_list_filtered:
-                        try:
-                            if line.strip():
-                                file.write(f"{line}\n")
-                        except Exception:
-                            continue
-
-            folder_count = folder_count + 1
-            print("Folder count - " + str(folder_count))
-
-    except Exception as e:
-        print(
-            "Error -"
-            + os.path.basename(root)
-            + ","
-            + os.path.basename(img1_cropped_path)
-            + ","
-            + os.path.basename(img2_cropped_path)
-            + "-"
-            + str(e)
-        )
-        traceback.print_exc()
 
 
 if __name__ == "__main__":

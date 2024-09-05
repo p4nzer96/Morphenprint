@@ -163,8 +163,9 @@ cython_debug/
 
 # Other excluded folders
 
-**/.idea/
-**/.vscode/
-**/livdet-2021-test/
-**/LivDet-2021-Dataset/
-**/aligned_images/
+**/.idea
+**/.vscode
+**/livdet-2021-test
+**/LivDet-2021-Dataset
+**/aligned_images
+**/minutiae_maps
