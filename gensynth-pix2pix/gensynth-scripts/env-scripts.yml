@@ -1,0 +1,13 @@
+name: gensyth-scripts
+channels:
+  - conda-forge
+  - anaconda
+  - defaults
+dependencies:
+  - python=3.9.12
+  - pip
+  - pip:
+    - numpy
+    - tqdm
+    - subprocess32
+    - Pillow
